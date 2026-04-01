@@ -16,14 +16,17 @@ def read_input():
     links = {
         "1": ["AbbVie", "https://news.abbvie.com/news/press-releases/"],
         "2": ["Merck", "https://www.merck.com/news/"],
-        "3": ["Pfizer", "https://www.pfizer.com/news/press-releases/"]
+        "3": ["Pfizer", "https://www.pfizer.com/news/press-releases/"],
+        "4": ["National Institutes of Health", "https://www.cancer.gov/news-events/press-releases/2025"],
+        "5": ["Pub MD", "https://pubmed.ncbi.nlm.nih.gov/?term=Ovarian+Cancer"],
+        "6": ["FDA", "https://www.fda.gov/search?s=Ovarian+Cancer"]
     }
     
     st.sidebar.header("Data Sources")
     for company, url in links.values():
         st.sidebar.write(f"**{company}**: [Press Releases]({url})")
 
-    for i in range(1, 4):
+    for i in range(1, 6):
         company_name = links[str(i)][0]
         url = links[str(i)][1]
         
