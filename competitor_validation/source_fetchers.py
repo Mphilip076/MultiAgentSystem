@@ -1,56 +1,67 @@
 import requests
 
-
 def fetch_clinicaltrials_study(query: str, max_results: int = 1) -> str:
-    """
-    Very simple starter fetcher.
-    Uses ClinicalTrials.gov study fields endpoint.
-    """
-    url = "https://clinicaltrials.gov/api/query/study_fields"
+    url = "https://clinicaltrials.gov/api/v2/studies"
     params = {
-        "expr": query,
-        "fields": ",".join([
-            "NCTId",
-            "BriefTitle",
-            "Condition",
-            "InterventionName",
-            "Phase",
-            "OverallStatus",
-            "BriefSummary",
-            "PrimaryOutcomeMeasure",
-            "PrimaryCompletionDate"
-        ]),
-        "min_rnk": 1,
-        "max_rnk": max_results,
-        "fmt": "json"
+        "query.term": query,
+        "pageSize": max_results,
+        "format": "json",
     }
 
     resp = requests.get(url, params=params, timeout=30)
     resp.raise_for_status()
     data = resp.json()
 
-    studies = data.get("StudyFieldsResponse", {}).get("StudyFields", [])
+    studies = data.get("studies", [])
     if not studies:
-        return "No ClinicalTrials.gov study found."
+        return f"No ClinicalTrials.gov study found for query: {query}"
 
-    s = studies[0]
+    study = studies[0]
 
-    def first(field: str) -> str:
-        values = s.get(field, [])
-        return values[0] if values else "N/A"
+    protocol = study.get("protocolSection", {})
+    identification = protocol.get("identificationModule", {})
+    status = protocol.get("statusModule", {})
+    conditions = protocol.get("conditionsModule", {})
+    arms = protocol.get("armsInterventionsModule", {})
+    description = protocol.get("descriptionModule", {})
+    outcomes = protocol.get("outcomesModule", {})
+
+    nct_id = identification.get("nctId", "N/A")
+    title = identification.get("briefTitle", "N/A")
+
+    condition_list = conditions.get("conditions", [])
+    condition_text = ", ".join(condition_list) if condition_list else "N/A"
+
+    interventions = arms.get("interventions", [])
+    intervention_names = [i.get("name", "N/A") for i in interventions if isinstance(i, dict)]
+    intervention_text = ", ".join(intervention_names) if intervention_names else "N/A"
+
+    overall_status = status.get("overallStatus", "N/A")
+    brief_summary = description.get("briefSummary", "N/A")
+
+    primary_outcomes = outcomes.get("primaryOutcomes", [])
+    if primary_outcomes and isinstance(primary_outcomes[0], dict):
+        primary_outcome_text = primary_outcomes[0].get("measure", "N/A")
+    else:
+        primary_outcome_text = "N/A"
+
+    completion_date = status.get("primaryCompletionDateStruct", {}).get("date", "N/A")
+
+    design = protocol.get("designModule", {})
+    phases = design.get("phases", [])
+    phase_text = ", ".join(phases) if phases else "N/A"
 
     return f"""
-NCT ID: {first("NCTId")}
-Title: {first("BriefTitle")}
-Condition: {first("Condition")}
-Intervention: {first("InterventionName")}
-Phase: {first("Phase")}
-Status: {first("OverallStatus")}
-Summary: {first("BriefSummary")}
-Primary Outcome: {first("PrimaryOutcomeMeasure")}
-Primary Completion Date: {first("PrimaryCompletionDate")}
+NCT ID: {nct_id}
+Title: {title}
+Condition: {condition_text}
+Intervention: {intervention_text}
+Phase: {phase_text}
+Status: {overall_status}
+Summary: {brief_summary}
+Primary Outcome: {primary_outcome_text}
+Primary Completion Date: {completion_date}
 """.strip()
-
 
 def fetch_biomednews_text() -> str:
     """
