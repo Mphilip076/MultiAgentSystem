@@ -6,7 +6,7 @@ import google.generativeai as genai
 
 st.title("Proposal Calls") # Title for the page
 
-os.environ['GOOGLE_API_KEY'] = "********************************"
+os.environ['GOOGLE_API_KEY'] = "AIzaSyDSH3g7x4Fj-HCv2dj_c3tdFEARAvAdlKE"
 genai.configure(api_key = os.environ['GOOGLE_API_KEY'])
 
 model = genai.GenerativeModel('gemini-pro')
