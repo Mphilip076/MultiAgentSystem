@@ -80,7 +80,7 @@ def agent_triage_extraction(company_name, raw_data):
 ### MISSION: 
 Extract a CLEAN JSON list of specific Pharma Industry news from {company_name} that is STRATEGICALLY RELEVANT to AbbVie.
 
-### STRATEGIC AREAS OF INTEREST (ABBVIE FOCUS):
+### STRATEGIC AREAS OF INTEREST:
 - **Immunology:** RA, Crohn's, Colitis, Psoriasis (Competitors to Humira, Skyrizi, Rinvoq).
 - **Oncology:** Hemato-oncology (CLL, AML) and solid tumors (Competitors to Venclexta, Imbruvica).
 - **Neuroscience:** Parkinson's, Migraine, Depression (Competitors to Vraylar, Qulipta).
@@ -95,15 +95,9 @@ Extract a CLEAN JSON list of specific Pharma Industry news from {company_name} t
 - Clinical trial results (Phase 1-3), FDA/EMA approvals, R&D breakthroughs, and strategic competitor moves (M&A, licensing) in the focus areas above.
 - **IMPORTANT:** ONLY include news from the TARGET MONTH ({current_month} {current_year}). If an article is from a different time period, DISCARD it.
 
-
-
-### VERBATIM CHALLENGE (ANTI-HALLUCINATION):
+### GROUNDING RULES:
 - **NO SYNTHESIS:** Do NOT combine fragments to create a new title.
 - **NO URL GUESSING:** If the link is not clearly next to the headline in the RAW DATA, do NOT include the item.
-- **ZERO TOLERANCE:** If you are unsure if a piece of information is explicitly in the data, EXCLUDE it. 
-- Return an empty list `{{"items": []}}` if nothing is 100% verified to be from {current_month} {current_year}.
-
-### GROUNDING RULES:
 - **NO HALLUCINATIONS:** If the exact news title or link is not in the RAW DATA, do NOT include it.
 - **DATE ACCURACY:** If a year is not explicitly {current_year}, assume it is NOT {current_year} and discard it. 
 - **EMPTY RESULTS:** If no news items meet all criteria (AbbVie relevance + {current_year} date), return an EMPTY list: {{"items": []}}. 
