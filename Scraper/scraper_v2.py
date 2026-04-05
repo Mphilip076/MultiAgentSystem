@@ -17,7 +17,7 @@ now = datetime.datetime.now()
 current_year = now.year
 current_month = "March" #now.strftime("%B")
 
-GROQ_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+GROQ_MODEL = "llama-3.3-70b-versatile"
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 DB_FILE = "processed_news.json"
@@ -31,7 +31,7 @@ DB_FILE = "processed_news.json"
 # openai/gpt-oss-120b
 
 # Streamlit UI (delete later)
-st.set_page_config(page_title="AI Competitive Intelligence Scraper", layout="wide")
+st.set_page_config(page_title="Scraper", layout="wide")
 st.title(f"Test Scraper For {current_month} {current_year}")
 
 # -------------------- DATABASE HELPERS --------------------#
@@ -127,31 +127,28 @@ def clean_data(company_name, raw_data):
 
     prompt = f"""
             ### MISSION: 
-            Extract a CLEAN JSON list of specific Pharma Industry news from {company_name} that is STRATEGICALLY RELEVANT to AbbVie.
-
+            Extract a CLEAN JSON list of high-value, strategic Industry news from {company_name} relevant to AbbVie.
+            
             ### STRATEGIC AREAS OF INTEREST:
             - **Immunology:** RA, Crohn's, Colitis, Psoriasis (Competitors to Humira, Skyrizi, Rinvoq).
             - **Oncology:** Hemato-oncology (CLL, AML) and solid tumors (Competitors to Venclexta, Imbruvica).
             - **Neuroscience:** Parkinson's, Migraine, Depression (Competitors to Vraylar, Qulipta).
             - **Aesthetics:** Medical aesthetics, toxins, fillers (Competitors to Botox).
 
-            ### DISCARD / IGNORE:
-            - Generic corporate HR news, social media links, press kits, media libraries.
-            - "About us" or "Email alerts" buttons.
-            - Financial reports unless they mention specific product performance or M&A.
-
-            ### KEEP ONLY:
-            - Clinical trial results (Phase 1-3), FDA/EMA approvals, R&D breakthroughs, and strategic competitor moves (M&A, licensing) in the focus areas above.
-            - **IMPORTANT:** ONLY include news from the TARGET MONTH ({current_month} {current_year}). If an article is from a different time period, DISCARD it.
+            ### CRITICAL: DISCARD / IGNORE (TRASH ITEMS):
+            - **Marketing & Promotions:** Sales, "Deals" for customers, coupons, holiday events, monthly gift card promos.
+            - **Generic Corporate:** HR, "About Us", website updates, social media links.
+            - **Routine PR:** Media kits, press contact info, generic newsletters.
 
             ### GROUNDING RULES:
+            - **NO CONSUMER DEALS:** If the news is about a "Deal" or "Discount" for patients/consumers, DISCARD IT.
             - **NO SYNTHESIS:** Do NOT combine fragments to create a new title.
             - **NO URL GUESSING:** If the link is not clearly next to the headline in the RAW DATA, do NOT include the item.
             - **NO HALLUCINATIONS:** If the exact news title or link is not in the RAW DATA, do NOT include it.
             - **DATE ACCURACY:** If a year is not explicitly {current_year}, assume it is NOT {current_year} and discard it. 
             - **EMPTY RESULTS:** If no news items meet all criteria (AbbVie relevance + {current_year} date), return an EMPTY list: {{"items": []}}. 
             - Do not make up links. Links must come directly from the LINK: markers.
-
+            
             ### FORMAT: 
             JSON LIST ONLY: {{"items": [{{"title": "Full Headline", "date": "Date found", "link": "Direct URL"}}]}}
 
@@ -196,7 +193,7 @@ def start_scraper():
     db = load_db()
     news_queue = []
 
-    with st.status("Gathering news candidates...", expanded=True) as status:
+    with st.status("Scraping...", expanded=True) as status:
         # Concurrent Scraping
         scraped_results = []
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -233,11 +230,11 @@ def start_scraper():
                 st.write(f"Nothing new for {name}.")
 
         save_db(db)
-        status.update(label=f"Done! {len(news_queue)} items ready found.", state="complete")
+        status.update(label=f"Done! {len(news_queue)} items found.", state="complete")
 
     # Display queue of news (later we can send this to the AI agents, so it would be a return item)
     if news_queue:
-        st.subheader("Note: The JSON contains links to the articles, but probably an AI agent will need to research more.")
+        st.subheader("News Queue")
         st.json(news_queue)
     else:
         st.info("The News Queue is empty (No new items found since the last run).")
@@ -248,7 +245,7 @@ def start_scraper():
 
 # -------------------- MAIN ------------------#
 if __name__ == "__main__":
-    if st.button("Scan for New Competitor Data"):
+    if st.button("Scrape"):
         start_scraper()
     else:
-        st.info("Click to scan. The system will only show items it hasn't processed before.")
+        st.info("The system will only show items it hasn't processed before.")
