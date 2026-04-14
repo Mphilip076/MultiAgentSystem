@@ -1,0 +1,55 @@
+research_task:
+  description: >
+    You are given a recent news event about {topic}: {news_item}. 
+    Use this event as a starting point to conduct deep, extensive research. 
+    Find additional background, historical context, related announcements, and 
+    market reactions to build a highly comprehensive view of the situation. 
+    Do not just summarize the provided article—expand upon it significantly
+    with your own independent research tools and capabilities.
+  expected_output: >
+    An extensive, highly detailed research dossier containing as much 
+    information as possible about the event, its background, and its broader 
+    strategic implications, formatted as comprehensive structured notes.
+  agent: researcher
+
+data_validation_task:
+  description: >
+    Review the extensive research dossier compiled by the researcher regarding 
+    the news event: {news_item}. Rigorously fact-check and cross-reference 
+    all of the incorporated background data and context. Eliminate any 
+    hallucinations, inaccuracies, or logically inconsistent data points to 
+    ensure the research is entirely bulletproof.
+  expected_output: >
+    A refined, fully vetted, and comprehensive dossier of validated facts and 
+    deep-dive research, absolutely free of hallucinations and ready for 
+    report generation.
+  agent: data_validator
+
+report_creation_task:
+  description: >
+    Review the heavily detailed and validated context and transform it into a 
+    highly comprehensive, full-length markdown report. Map the verified facts 
+    into deep strategic impacts, explaining the competitive landscape and 
+    long-term consequences for {topic} based on this news event and its 
+    broader context.
+  expected_output: >
+    A fully fledged, extensive strategic report formatted as clean markdown 
+    without any code block formatting wrappers like '```'.
+  agent: report_creator
+
+report_validation_task:
+  description: >
+    Review the generated strategic report for structural integrity, logical flow,
+    formatting consistency, and professional tone. Ensure that the original vetted facts
+    were strictly adhered to without being altered to sound better.
+  expected_output: >
+    The final, polished and fully vetted version of the extensive markdown report.
+  agent: report_validator
+
+send_report_task:
+  description: >
+    Take the finalized and validated extensive report and prepare it for 
+    professional delivery using the provided template: {template}.
+  expected_output: >
+    A ready-to-deliver communication containing the final report.
+  agent: send_report
