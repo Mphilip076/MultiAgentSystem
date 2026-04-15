@@ -1,0 +1,19 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables
+.env
+
+# Virtual Environments
+.venv/
+env/
+System/.venv/
+
+# Local Databases/Logs
+processed_news.json
+*.log
+
+# OS files
+.DS_Store

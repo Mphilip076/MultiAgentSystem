@@ -7,101 +7,39 @@ from datetime import datetime
 from system.crew import System
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
-
-# This main file is intended to be a way for you to run your
-# crew locally, so refrain from adding unnecessary logic into this file.
-# Replace with inputs you want to test with, it will automatically
-# interpolate any tasks and agents information
+warnings.filterwarnings("ignore", category=UserWarning)
 
 def run():
     """
-    Run the crew.
+    Run the crew with optimized inputs.
     """
-    # Example mocked data from your scraper
     scraped_news_queue = [
         {
-            "title": "OpenAI announces new Strawberry AI reasoning models", 
-            "link": "https://www.theverge.com/2024/9/12/24242439/openai-o1-model-reasoning-strawberry-chatgpt", 
-            "date": "2024-09-12",
-            "snippet": "OpenAI is releasing a new series of AI models designed to spend more time thinking before they respond. It's the first in a series of reasoning models focused on complex problem-solving."
+            "title": "Pfizer Secures FDA Approval for Oral GLP-1 and Metsera Acquisition", 
+            "link": "https://www.pharmavoice.com/news/pfizer-ceo-strategy", 
+            "date": "2026-04-14",
+            "snippet": "Pfizer has finalized its acquisition of Metsera and received approval for its once-daily obesity pill."
         }
     ]
 
     for article in scraped_news_queue:
         print(f"\n--- Initiating Crew Analysis for: {article['title']} ---\n")
         
+        # Flattening the article data helps prevent the LLM from getting 
+        # confused by raw JSON/Dictionary syntax in the prompt.
         inputs = {
-            'topic': 'Competitor AI Development',
-            'news_item': article,
-            'template': "Hello Team,\n\nPlease find the latest strategic analysis below:\n{report_content}\n\nBest,\nAutomated System",
-            'company_goals': "We are aggressively expanding our AI product suite this quarter. Focus on how competitor moves threaten or validate our roadmap."
+            'topic': 'Biopharmaceutical Market Dynamics and Competitor Strategy',
+            'news_item': f"Source: {article['title']}. Content: {article['snippet']}. URL: {article['link']}",
+            'template': "Executive Strategic Impact Brief",
+            'company_goals': (
+                "1. Protect market share in core Immunology and Oncology portfolios. "
+                "2. Monitor competitor R&D breakthroughs that may disrupt current standards of care. "
+                "3. Identify M&A activity or strategic pivots that shift the industry's capital flow. "
+                "4. Assess risks to patent estates and regulatory exclusivity."
+            )
         }
 
         try:
             System().crew().kickoff(inputs=inputs)
         except Exception as e:
-            raise Exception(f"An error occurred while running the crew on {article['title']}: {e}")
-def train():
-    """
-    Train the crew for a given number of iterations.
-    """
-    inputs = {
-        "topic": "AI LLMs",
-        'current_year': str(datetime.now().year)
-    }
-    try:
-        System().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
-
-    except Exception as e:
-        raise Exception(f"An error occurred while training the crew: {e}")
-
-def replay():
-    """
-    Replay the crew execution from a specific task.
-    """
-    try:
-        System().crew().replay(task_id=sys.argv[1])
-
-    except Exception as e:
-        raise Exception(f"An error occurred while replaying the crew: {e}")
-
-def test():
-    """
-    Test the crew execution and returns the results.
-    """
-    inputs = {
-        "topic": "AI LLMs",
-        "current_year": str(datetime.now().year)
-    }
-
-    try:
-        System().crew().test(n_iterations=int(sys.argv[1]), eval_llm=sys.argv[2], inputs=inputs)
-
-    except Exception as e:
-        raise Exception(f"An error occurred while testing the crew: {e}")
-
-def run_with_trigger():
-    """
-    Run the crew with trigger payload.
-    """
-    import json
-
-    if len(sys.argv) < 2:
-        raise Exception("No trigger payload provided. Please provide JSON payload as argument.")
-
-    try:
-        trigger_payload = json.loads(sys.argv[1])
-    except json.JSONDecodeError:
-        raise Exception("Invalid JSON payload provided as argument")
-
-    inputs = {
-        "crewai_trigger_payload": trigger_payload,
-        "topic": "",
-        "current_year": ""
-    }
-
-    try:
-        result = System().crew().kickoff(inputs=inputs)
-        return result
-    except Exception as e:
-        raise Exception(f"An error occurred while running the crew with trigger: {e}")
+            print(f"FAILED: {article['title']}\nError: {e}")
