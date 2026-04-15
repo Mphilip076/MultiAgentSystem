@@ -33,15 +33,19 @@ report_creation_task:
     long-term consequences for {topic} based on this news event and its 
     broader context.
   expected_output: >
-    A fully fledged, extensive strategic report formatted as clean markdown 
-    without any code block formatting wrappers like '```'.
+    A fully fledged, extensive strategic report formatted as CLEAN PLAIN TEXT suitable for a direct email body.
+    CRITICAL FORMATTING RULE: Do NOT use ANY Markdown syntax. Do NOT use asterisks ('*'), do NOT use hashes ('#') for titles, and do NOT use bold/italics. 
+    Use ALL CAPS for section titles and headers. Use standard hyphens ('-') for bullet points. Keep it highly readable for a plain text email.
   agent: report_creator
 
 report_validation_task:
   description: >
     Review the generated strategic report for structural integrity, logical flow,
     formatting consistency, and professional tone. Ensure that the original vetted facts
-    were strictly adhered to without being altered to sound better.
+    were strictly adhered to without being altered to sound better. 
+    Ensure formatting complies with the PLAIN TEXT email rule: NO Markdown symbols allowed.
+    If you see any asterisks ('*'), hashes ('#'), or markdown wrappers, remove them completely. 
+    Ensure section titles are in ALL CAPS and bullet points use hyphens ('-').
   expected_output: >
     The final, polished and fully vetted version of the extensive markdown report.
   agent: report_validator
