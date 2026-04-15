@@ -8,44 +8,27 @@ from typing import List
 from crewai_tools import SerperDevTool
 from crewai.tools import tool
 import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import datetime
 
 # Initialize the tools
 search_tool = SerperDevTool()
 
 @tool("Email Sender Tool")
 def send_email_tool(report_content: str) -> str:
-    """Use this tool to send the finalized email containing the strategic report to the executive team via Outlook."""
+    """Use this tool to simulate sending the finalized strategic report to the executive team.
+    It will print the email structure to the console for review.
+    """
+    recipient_email = "abbvie@uic.edu"
     
-    sender_email = os.getenv("OUTLOOK_EMAIL")
-    sender_password = os.getenv("OUTLOOK_PASSWORD")
-    recipient_email = os.getenv("EXECUTIVE_RECIPIENT_EMAIL")
-    
-    if not all([sender_email, sender_password, recipient_email]):
-        return "Error: Missing Outlook credentials (OUTLOOK_EMAIL, OUTLOOK_PASSWORD) or recipient (EXECUTIVE_RECIPIENT_EMAIL) in environment variables."
+    print("\n" + "="*60)
+    print("From:      Team404" )
+    print(f"To:      {recipient_email}")
+    print(f"Subject: Strategic Impact Report {datetime.datetime.now()}")
+    print("-" * 60)
+    print(report_content)
+    print("="*60 + "\n")
 
-    try:
-        # Create the email
-        message = MIMEMultipart()
-        message["From"] = sender_email
-        message["To"] = recipient_email
-        message["Subject"] = "Strategic Impact Report"
-
-        # Attach the report content
-        message.attach(MIMEText(report_content, "plain"))
-
-        # Connect to Outlook's SMTP server
-        # Server: smtp.office365.com, Port: 587
-        with smtplib.SMTP("smtp.office365.com", 587) as server:
-            server.starttls()  # Secure the connection
-            server.login(sender_email, sender_password)
-            server.send_message(message)
-
-        return f"Email successfully sent to {recipient_email}!"
-    except Exception as e:
-        return f"Failed to send email: {str(e)}"
+    return f"Email successfully sent to {recipient_email}!"
 
 class ReportTemplate(BaseModel):
     executive_summary: str = Field(description="A high-level summary of the news and its immediate strategic implications.")
@@ -68,7 +51,6 @@ class System():
             config=self.agents_config['researcher'], 
             verbose=True,
             tools=[search_tool]
-            # llm='groq/llama-3.3-70b-versatile'
         )
 
     @agent
@@ -76,7 +58,6 @@ class System():
         return Agent(
             config=self.agents_config['data_validator'], 
             verbose=True
-            # llm='groq/llama-3.1-8b-instant' # 6k TPM pool
         )
 
     @agent
@@ -84,7 +65,6 @@ class System():
         return Agent(
             config=self.agents_config['report_creator'], 
             verbose=True
-            # llm='groq/gemma2-9b-it' # 15k TPM pool
         )
 
     @agent
@@ -92,7 +72,6 @@ class System():
         return Agent(
             config=self.agents_config['report_validator'], 
             verbose=True
-            # llm='groq/llama-3.2-3b-preview' # Separate 7k TPM pool
         )
 
     @agent
@@ -101,7 +80,6 @@ class System():
             config=self.agents_config['send_report'], 
             verbose=True,
             tools=[send_email_tool]
-            # llm='groq/llama-3.2-1b-preview' # Separate 7k TPM pool
         )
 
     # --- TASKS --- #
