@@ -50,6 +50,7 @@ send_report_task:
   description: >
     Take the finalized and validated extensive report and prepare it for 
     professional delivery using the provided template: {template}.
+    You MUST execute the Email Sender Tool to actually deliver the report. Provide the report content as the argument to the tool.
   expected_output: >
-    A ready-to-deliver communication containing the final report.
+    A confirmation string that the email tool was successfully called and the report was sent.
   agent: send_report

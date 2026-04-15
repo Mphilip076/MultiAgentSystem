@@ -23,7 +23,7 @@ except ImportError as e:
     sys.exit(1)
 
 # Scraper Configuration
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "qwen/qwen3-32b"
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 DB_FILE = "processed_news.json"
 now = datetime.datetime.now()
@@ -174,4 +174,5 @@ def run_system():
             print(f"Crew analysis failed for this item: {e}")
 
 if __name__ == "__main__":
+    
     run_system()

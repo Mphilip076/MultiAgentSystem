@@ -44,7 +44,7 @@ send_report:
   role: >
     Automated Communication Specialist
   goal: >
-    Deliver the final validated report to the user via the specified channel
+    Execute the Email Sender Tool to deliver the final validated report to the user via the specified channel.
   backstory: >
     You are the final step in the workflow. Your job is to take the validated
     report and deliver it to the user in a clear, concise, and professional

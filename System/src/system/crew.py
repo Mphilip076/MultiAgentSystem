@@ -20,18 +20,26 @@ search_tool = SerperDevTool()
 # Set the scope to only sending emails
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
+CUR_DIR = os.path.dirname(os.path.abspath(__file__))
+CREDENTIALS_PATH = os.path.join(CUR_DIR, '..', '..', 'credentials.json')
+TOKEN_PATH = os.path.join(CUR_DIR, '..', '..', 'token.json')
+
 def get_gmail_service():
     """Handles OAuth2 authentication and returns the Gmail service."""
     creds = None
     # token.json stores the user's access and refresh tokens
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if os.path.exists(TOKEN_PATH):
+        creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
     
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
-        flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+        # This will open a browser window for the first run
+        if not os.path.exists(CREDENTIALS_PATH):
+            raise FileNotFoundError(f"Credentials file not found at {os.path.abspath(CREDENTIALS_PATH)}. Please ensure it exists in the System/ directory.")
+            
+        flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
         creds = flow.run_local_server(port=0)
-        with open('token.json', 'w') as token:
+        with open(TOKEN_PATH, 'w') as token:
             token.write(creds.to_json())
     
     return build('gmail', 'v1', credentials=creds)
