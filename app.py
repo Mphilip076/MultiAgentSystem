@@ -23,7 +23,7 @@ except ImportError as e:
     sys.exit(1)
 
 # Scraper Configuration
-GROQ_MODEL = "qwen/qwen3-32b"
+GROQ_MODEL = "llama-3.3-70b-versatile"
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 DB_FILE = "processed_news.json"
 now = datetime.datetime.now()
