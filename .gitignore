@@ -17,3 +17,6 @@ processed_news.json
 
 # OS files
 .DS_Store
+
+credentials.json
+token.json

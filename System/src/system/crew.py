@@ -3,32 +3,67 @@ from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from pydantic import BaseModel, Field
 from typing import List
-
-# Import requested tools
 from crewai_tools import SerperDevTool
-from crewai.tools import tool
 import os
+import base64
 import datetime
+from email.message import EmailMessage
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from crewai.tools import tool
 
 # Initialize the tools
 search_tool = SerperDevTool()
 
+
+# Set the scope to only sending emails
+SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+
+def get_gmail_service():
+    """Handles OAuth2 authentication and returns the Gmail service."""
+    creds = None
+    # token.json stores the user's access and refresh tokens
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+        creds = flow.run_local_server(port=0)
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+    
+    return build('gmail', 'v1', credentials=creds)
+
 @tool("Email Sender Tool")
 def send_email_tool(report_content: str) -> str:
-    """Use this tool to simulate sending the finalized strategic report to the executive team.
-    It will print the email structure to the console for review.
+    """Use this tool to send the finalized strategic report to the executive team 
+    via the Gmail API. Input should be the full string content of the report.
     """
-    recipient_email = "abbvie@uic.edu"
+    recipient_email = "mateoviteri13579@gmail.com"
     
-    print("\n" + "="*60)
-    print("From:      Team404" )
-    print(f"To:      {recipient_email}")
-    print(f"Subject: Strategic Impact Report {datetime.datetime.now()}")
-    print("-" * 60)
-    print(report_content)
-    print("="*60 + "\n")
+    try:
+        service = get_gmail_service()
+        message = EmailMessage()
+        
+        # Structure the email
+        message.set_content(report_content)
+        message['To'] = recipient_email
+        message['From'] = "me"
+        message['Subject'] = f"Strategic Impact Report - {datetime.datetime.now().strftime('%Y-%m-%d')}"
 
-    return f"Email successfully sent to {recipient_email}!"
+        # Gmail API requires the message to be base64url encoded
+        encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        create_message = {'raw': encoded_message}
+        
+        # Execute the send command
+        send_message = (service.users().messages().send(userId="me", body=create_message).execute())
+        
+        return f"Email successfully sent to {recipient_email}! Message ID: {send_message['id']}"
+    
+    except Exception as e:
+        return f"Failed to send email. Error: {str(e)}"
 
 class ReportTemplate(BaseModel):
     executive_summary: str = Field(description="A high-level summary of the news and its immediate strategic implications.")
