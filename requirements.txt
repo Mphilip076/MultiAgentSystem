@@ -1,0 +1,7 @@
+crewai[google-genai,litellm,tools]==1.14.1
+requests
+beautifulsoup4
+groq
+python-dotenv
+streamlit
+pydantic
