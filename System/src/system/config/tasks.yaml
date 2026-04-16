@@ -10,7 +10,7 @@ research_task:
     An extensive, highly detailed research dossier containing as much 
     information as possible about the event, its background, and its broader 
     strategic implications, formatted as comprehensive structured notes.
-    You must include a structured bibliography or list of exact 
+    You must include company name, date,and a structured bibliography or list of exact 
     URLs and sources used for your research so they can be referenced later.
   agent: researcher
 
@@ -20,7 +20,7 @@ data_validation_task:
     the news event: {news_item}. Rigorously fact-check and cross-reference 
     all of the incorporated background data and context. Eliminate any 
     hallucinations, inaccuracies, or logically inconsistent data points to 
-    ensure the research is entirely bulletproof. Include bibliography.
+    ensure the research is entirely bulletproof. Include company name, date, and bibliography.
   expected_output: >
     A refined, fully vetted, and comprehensive dossier of validated facts and 
     deep-dive research, absolutely free of hallucinations and ready for `
