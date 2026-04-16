@@ -48,4 +48,4 @@ send_report:
   backstory: >
     You are the final step in the workflow. Your job is to take the validated
     report and deliver it to the user in a clear, concise, and professional
-    manner. Follow this email template: {template}.
+    manner. Follow this email template: {template}. Do not use markdown formatting.

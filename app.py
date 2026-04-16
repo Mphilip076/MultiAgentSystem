@@ -96,7 +96,8 @@ def clean_data_with_ai(company_name, raw_data):
         )
         data = json.loads(completion.choices[0].message.content)
         return data.get("items", [])
-    except Exception:
+    except Exception as e:
+        print(f"AI cleaning failed!! Error: {e}")
         return []
 
 # -------------------- INTEGRATED EXECUTION ------------------#
@@ -157,7 +158,17 @@ def run_system():
         inputs = {
             'topic': 'Biopharmaceutical Market Dynamics and Competitor Strategy',
             'news_item': f"Source: {news['source_name']}. Title: {news['title']}. Date: {news.get('date', 'N/A')}. URL: {news.get('link', 'N/A')}",
-            'template': "Executive Strategic Impact Brief",
+            'template': (
+                "[title]\n"
+                "COMPANY: [company name]\n"
+                "DATE: [date]\n\n"
+                "WHAT HAPPENED:\n"
+                "COMPETITIVE IMPACT:\n"
+                "WHY IT MATTERS:\n"
+                "TELL ME MORE:\n"
+                "OUTLOOK:\n"
+                "SOURCE INFORMATION: [numbered list of sources]\n"
+            ),
             'company_goals': (
                 "1. Protect market share in core Immunology and Oncology portfolios. "
                 "2. Monitor competitor R&D breakthroughs. "
@@ -167,9 +178,8 @@ def run_system():
         }
 
         try:
-            result = System().crew().kickoff(inputs=inputs)
-            print(f"\nCREW REPORT FOR: {news['title']}\n")
-            print(result)
+            System().crew().kickoff(inputs=inputs)
+            print("The report was created successfully.")
         except Exception as e:
             print(f"Crew analysis failed for this item: {e}")
 

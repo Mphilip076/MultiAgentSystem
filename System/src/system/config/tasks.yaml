@@ -10,6 +10,8 @@ research_task:
     An extensive, highly detailed research dossier containing as much 
     information as possible about the event, its background, and its broader 
     strategic implications, formatted as comprehensive structured notes.
+    You must include a structured bibliography or list of exact 
+    URLs and sources used for your research so they can be referenced later.
   agent: researcher
 
 data_validation_task:
@@ -18,24 +20,25 @@ data_validation_task:
     the news event: {news_item}. Rigorously fact-check and cross-reference 
     all of the incorporated background data and context. Eliminate any 
     hallucinations, inaccuracies, or logically inconsistent data points to 
-    ensure the research is entirely bulletproof.
+    ensure the research is entirely bulletproof. Include bibliography.
   expected_output: >
     A refined, fully vetted, and comprehensive dossier of validated facts and 
-    deep-dive research, absolutely free of hallucinations and ready for 
+    deep-dive research, absolutely free of hallucinations and ready for `
     report generation.
   agent: data_validator
 
 report_creation_task:
   description: >
     Review the heavily detailed and validated context and transform it into a 
-    highly comprehensive, full-length markdown report. Map the verified facts 
+    highly comprehensive, full-length report. Map the verified facts 
     into deep strategic impacts, explaining the competitive landscape and 
     long-term consequences for {topic} based on this news event and its 
-    broader context.
+    broader context. You must append a complete list of all sources, 
+    URLs, and references discovered and used during the research phase 
+    at the bottom of the report.
   expected_output: >
-    A fully fledged, extensive strategic report formatted as CLEAN PLAIN TEXT suitable for a direct email body.
-    CRITICAL FORMATTING RULE: Do NOT use ANY Markdown syntax. Do NOT use asterisks ('*'), do NOT use hashes ('#') for titles, and do NOT use bold/italics. 
-    Use ALL CAPS for section titles and headers. Use standard hyphens ('-') for bullet points. Keep it highly readable for a plain text email.
+    A fully fledged, extensive strategic report formatted as CLEAN PLAIN TEXT 
+    suitable for a direct email body.
   agent: report_creator
 
 report_validation_task:
@@ -43,18 +46,20 @@ report_validation_task:
     Review the generated strategic report for structural integrity, logical flow,
     formatting consistency, and professional tone. Ensure that the original vetted facts
     were strictly adhered to without being altered to sound better. 
-    Ensure formatting complies with the PLAIN TEXT email rule: NO Markdown symbols allowed.
-    If you see any asterisks ('*'), hashes ('#'), or markdown wrappers, remove them completely. 
-    Ensure section titles are in ALL CAPS and bullet points use hyphens ('-').
   expected_output: >
-    The final, polished and fully vetted version of the extensive markdown report.
+    The final, polished and fully vetted version of the extensive report.
   agent: report_validator
 
 send_report_task:
   description: >
     Take the finalized and validated extensive report and prepare it for 
     professional delivery using the provided template: {template}.
-    You MUST execute the Email Sender Tool to actually deliver the report. Provide the report content as the argument to the tool.
+    The report will contain a "SUBJECT:" line. You MUST extract this subject 
+    line to use as the email subject, and use the rest of the formatted report 
+    as the email body.
+    You MUST execute the Email Sender Tool to actually deliver the report. 
+    Provide the extracted subject as the `subject` argument, and the report body 
+    as the `report_content` argument to the tool.
   expected_output: >
     A confirmation string that the email tool was successfully called and the report was sent.
   agent: send_report

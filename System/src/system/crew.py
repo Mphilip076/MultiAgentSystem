@@ -45,9 +45,12 @@ def get_gmail_service():
     return build('gmail', 'v1', credentials=creds)
 
 @tool("Email Sender Tool")
-def send_email_tool(report_content: str) -> str:
+def send_email_tool(subject: str, report_content: str) -> str:
     """Use this tool to send the finalized strategic report to the executive team 
-    via the Gmail API. Input should be the full string content of the report.
+    via the Gmail API. 
+    Args:
+        subject: The exact subject line for the email.
+        report_content: The full formatted text content of the report for the email body.
     """
     recipient_email = "mateoviteri13579@gmail.com"
     
@@ -59,7 +62,7 @@ def send_email_tool(report_content: str) -> str:
         message.set_content(report_content)
         message['To'] = recipient_email
         message['From'] = "me"
-        message['Subject'] = f"Strategic Impact Report - {datetime.datetime.now().strftime('%Y-%m-%d')}"
+        message['Subject'] = subject
 
         # Gmail API requires the message to be base64url encoded
         encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
@@ -74,11 +77,11 @@ def send_email_tool(report_content: str) -> str:
         return f"Failed to send email. Error: {str(e)}"
 
 class ReportTemplate(BaseModel):
-    executive_summary: str = Field(description="A high-level summary of the news and its immediate strategic implications.")
-    historical_context: str = Field(description="Background information leading up to this event.")
-    verified_facts: List[str] = Field(description="A bulleted list of strictly verified facts extracted from the validated data.")
-    competitive_impact: str = Field(description="Detailed analysis on how this impacts the competitive landscape.")
-    recommended_actions: List[str] = Field(description="Actionable strategic recommendations based on the findings.")
+    what_happened: str = Field(description="A clear and concise summary of the core event or news.")
+    competitive_impact: str = Field(description="Detailed analysis of how this impacts the competitive landscape.")
+    why_it_matters: str = Field(description="Explanation of the strategic significance and alignment with company goals.")
+    tell_me_more: str = Field(description="The actual verified facts and detailed background context extracted from the validated data.")
+    outlook: str = Field(description="Actionable strategic recommendations, future outlook, and competitor activities to monitor.")
 
 @CrewBase
 class System():
@@ -92,7 +95,7 @@ class System():
     def researcher(self) -> Agent:
         return Agent(
             config=self.agents_config['researcher'], 
-            verbose=True,
+            verbose=False,
             tools=[search_tool]
         )
 
@@ -100,28 +103,28 @@ class System():
     def data_validator(self) -> Agent:
         return Agent(
             config=self.agents_config['data_validator'], 
-            verbose=True
+            verbose=False
         )
 
     @agent
     def report_creator(self) -> Agent:
         return Agent(
             config=self.agents_config['report_creator'], 
-            verbose=True
+            verbose=False
         )
 
     @agent
     def report_validator(self) -> Agent:
         return Agent(
             config=self.agents_config['report_validator'], 
-            verbose=True
+            verbose=False
         )
 
     @agent
     def send_report(self) -> Agent:
         return Agent(
             config=self.agents_config['send_report'], 
-            verbose=True,
+            verbose=False,
             tools=[send_email_tool]
         )
 
@@ -155,6 +158,6 @@ class System():
         return Crew(
             agents=self.agents, 
             tasks=self.tasks, 
-            verbose=True,
+            verbose=False,
             process=Process.sequential
         )
