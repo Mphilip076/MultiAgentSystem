@@ -6,8 +6,8 @@ import requests
 import datetime
 import concurrent.futures
 from bs4 import BeautifulSoup
-from groq import Groq
 from dotenv import load_dotenv
+from google import genai
 
 # SETUP & PATHS
 load_dotenv()
@@ -23,12 +23,11 @@ except ImportError as e:
     sys.exit(1)
 
 # Scraper Configuration
-GROQ_MODEL = "llama-3.3-70b-versatile"
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 DB_FILE = "processed_news.json"
 now = datetime.datetime.now()
 current_year = now.year
-current_month = "March" #now.strftime("%B")
+current_month = now.strftime("%B")
 
 # -------------------- DATABASE HELPERS --------------------#
 def load_db():
@@ -85,16 +84,23 @@ def clean_data_with_ai(company_name, raw_data):
             {raw_data}
             """
     try:
-        completion = client.chat.completions.create(
-            model=GROQ_MODEL,
-            messages=[
-                {"role": "system", "content": f"You are a data extraction tool. Extract ONLY strategic news for {current_month} {current_year}. Return {{'items': []}} if nothing found."},
-                {"role": "user", "content": prompt}
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.0
+        full_prompt = f"System: You are a data extraction tool. Extract ONLY strategic news for {current_month} {current_year}. Return {{'items': []}} if nothing found.\n\nUser: {prompt}"
+        response = gemini_client.models.generate_content(
+            model="gemini-3-flash-preview",
+            contents=full_prompt,
+            config={"response_mime_type": "application/json"}
         )
-        data = json.loads(completion.choices[0].message.content)
+        
+        # Extract content from response
+        try:
+            data = json.loads(response.text)
+        except:
+            # Fallback if markdown markers are present
+            text = response.text.strip()
+            if text.startswith("```json"):
+                text = text[7:-3].strip()
+            data = json.loads(text)
+            
         return data.get("items", [])
     except Exception as e:
         print(f"AI cleaning failed!! Error: {e}")
@@ -127,7 +133,7 @@ def run_system():
                 print(f"   Fetched: {name}")
 
     # 2. Clean and Check for New Items
-    print(f"\nFiltering for strategic news using AI ({GROQ_MODEL})...")
+    print(f"\nFiltering for strategic news using AI (Gemini)...")
     for name, raw_data in scraped_results:
         items = clean_data_with_ai(name, raw_data)
         for item in items:
@@ -161,13 +167,13 @@ def run_system():
             'template': (
                 "[title]\n"
                 "COMPANY: [company name]\n"
-                "DATE: [date]\n\n"
+                f"DATE: {now.strftime('%B %d, %Y')}\n\n"
                 "WHAT HAPPENED:\n"
                 "COMPETITIVE IMPACT:\n"
                 "WHY IT MATTERS:\n"
                 "TELL ME MORE:\n"
                 "OUTLOOK:\n"
-                "SOURCE INFORMATION: [numbered list of sources]\n"
+                "SOURCE INFORMATION: [numbered list of sources, emphasizing the FULL EXACT DIRECT URLs]\n"
             ),
             'company_goals': (
                 "1. Protect market share in core Immunology and Oncology portfolios. "

@@ -2,16 +2,20 @@ research_task:
   description: >
     You are given a recent news event about {topic}: {news_item}. 
     Use this event as a starting point to conduct deep, extensive research. 
-    Find additional background, historical context, related announcements, and 
+    Find additional background, related announcements, and 
     market reactions to build a highly comprehensive view of the situation. 
-    Do not just summarize the provided article—expand upon it significantly
-    with your own independent research tools and capabilities.
+    Focus ONLY on recent developments and the latest information surrounding the date of the news item. 
+    It is extremely important that you anchor your analysis to the current news rather than 
+    substituting it entirely with older context. Do not focus on outdated historical context 
+    (e.g. data from 2023) unless strictly necessary for a brief mention. Do not just summarize 
+    the provided article—expand upon it significantly with your own independent research tools.
   expected_output: >
     An extensive, highly detailed research dossier containing as much 
     information as possible about the event, its background, and its broader 
     strategic implications, formatted as comprehensive structured notes.
-    You must include company name, date,and a structured bibliography or list of exact 
+    You must include company name, date, and a structured bibliography or list of exact 
     URLs and sources used for your research so they can be referenced later.
+    You must include the original URL provided in the `news_item` as Source #1 in your bibliography.
   agent: researcher
 
 data_validation_task:
@@ -20,7 +24,8 @@ data_validation_task:
     the news event: {news_item}. Rigorously fact-check and cross-reference 
     all of the incorporated background data and context. Eliminate any 
     hallucinations, inaccuracies, or logically inconsistent data points to 
-    ensure the research is entirely bulletproof. Include company name, date, and bibliography.
+    ensure the research is entirely bulletproof. Include company name, date, and a 
+    bibliography that includes the FULL exact URLs.
   expected_output: >
     A refined, fully vetted, and comprehensive dossier of validated facts and 
     deep-dive research, absolutely free of hallucinations and ready for `
@@ -35,7 +40,8 @@ report_creation_task:
     long-term consequences for {topic} based on this news event and its 
     broader context. You must append a complete list of all sources, 
     URLs, and references discovered and used during the research phase 
-    at the bottom of the report.
+    at the bottom of the report. You must include the original 
+    news_item source (provided by the user) as Source #1 in the bibliography.
   expected_output: >
     A fully fledged, extensive strategic report formatted as CLEAN PLAIN TEXT 
     suitable for a direct email body.
@@ -45,9 +51,11 @@ report_validation_task:
   description: >
     Review the generated strategic report for structural integrity, logical flow,
     formatting consistency, and professional tone. Ensure that the original vetted facts
-    were strictly adhered to without being altered to sound better. 
+    were strictly adhered to without being altered to sound better. Verify that the 
+    bibliography contains the FULL exact URLs and links for all sources.
   expected_output: >
-    The final, polished and fully vetted version of the extensive report.
+    The final, polished and fully vetted version of the extensive report, ensuring 
+    that exact URLs for all sources are preserved.
   agent: report_validator
 
 send_report_task:

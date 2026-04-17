@@ -2,10 +2,10 @@ crewai[google-genai,litellm,tools]==1.14.1
 crewai-tools
 requests
 beautifulsoup4
-groq
 python-dotenv
 streamlit
 pydantic
 google-auth
 google-auth-oauthlib
 google-api-python-client
+google-genai
