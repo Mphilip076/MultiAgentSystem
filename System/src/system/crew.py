@@ -52,7 +52,7 @@ def send_email_tool(subject: str, report_content: str) -> str:
         subject: The exact subject line for the email.
         report_content: The full formatted text content of the report for the email body.
     """
-    recipient_email = "mateoviteri13579@gmail.com"
+    recipient_email = "mvite4@uic.edu"
     
     try:
         service = get_gmail_service()
