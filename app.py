@@ -173,7 +173,7 @@ def run_system():
                 "WHY IT MATTERS:\n"
                 "TELL ME MORE:\n"
                 "OUTLOOK:\n"
-                "SOURCE INFORMATION: [numbered list of sources, emphasizing the FULL EXACT DIRECT URLs]\n"
+                "SOURCE INFORMATION: [numbered list of sources, emphasizing name and URL]\n"
             ),
             'company_goals': (
                 "1. Protect market share in core Immunology and Oncology portfolios. "
