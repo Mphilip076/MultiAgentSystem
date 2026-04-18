@@ -12,6 +12,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from crewai.tools import tool
+import requests
 
 # Initialize the tools
 search_tool = SerperDevTool()
@@ -76,6 +77,25 @@ def send_email_tool(subject: str, report_content: str) -> str:
     except Exception as e:
         return f"Failed to send email. Error: {str(e)}"
 
+@tool("URL Checker Tool")
+def url_check_tool(url: str) -> str:
+    """Use this tool to check if a URL is valid and doesn't return a 404 error.
+    Args:
+        url: The full URL string to check.
+    """
+    try:
+        response = requests.head(url, timeout=5, allow_redirects=True, headers={'User-Agent': 'Mozilla/5.0'})
+        if response.status_code >= 400:
+            # Fallback to GET if HEAD fails
+            response = requests.get(url, timeout=5, stream=True, headers={'User-Agent': 'Mozilla/5.0'})
+            response.close()
+            
+        if response.status_code >= 400:
+            return f"Invalid URL (Status {response.status_code}): {url}"
+        return f"Valid URL: {url}"
+    except Exception as e:
+        return f"Failed to connect to URL. Error: {str(e)}"
+
 class ReportTemplate(BaseModel):
     what_happened: str = Field(description="A clear and concise summary of the core event or news.")
     competitive_impact: str = Field(description="Detailed analysis of how this impacts the competitive landscape.")
@@ -103,7 +123,8 @@ class System():
     def data_validator(self) -> Agent:
         return Agent(
             config=self.agents_config['data_validator'], 
-            verbose=False
+            verbose=False,
+            tools=[url_check_tool]
         )
 
     @agent

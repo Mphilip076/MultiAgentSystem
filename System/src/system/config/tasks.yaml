@@ -29,7 +29,10 @@ data_validation_task:
     ensure the research is entirely bulletproof. Include company name, date, and a 
     bibliography that includes the FULL exact URLs. 
     Ensure NO URLs have been hallucinated or modified. The links must be verbatim 
-    from the search results, even if the URL string contains an older year.
+    from the search results, even if the URL string contains an older year. 
+    You must use the URL Checker Tool on EVERY SINGLE LINK in your compiled bibliography. 
+    If a link returns an invalid status code, a 404 error, or fails to connect, you must completely 
+    discard that source from the research dossier before passing it to the report creator.
   expected_output: >
     A refined, fully vetted, and comprehensive dossier of validated facts and 
     deep-dive research, absolutely free of hallucinations and ready for `
