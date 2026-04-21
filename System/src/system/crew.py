@@ -13,6 +13,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from crewai.tools import tool
 import requests
+import io
+from docx import Document
 
 # Initialize the tools
 search_tool = SerperDevTool()
@@ -46,12 +48,13 @@ def get_gmail_service():
     return build('gmail', 'v1', credentials=creds)
 
 @tool("Email Sender Tool")
-def send_email_tool(subject: str, report_content: str) -> str:
+def send_email_tool(subject: str, email_body: str, report_content: str) -> str:
     """Use this tool to send the finalized strategic report to the executive team 
     via the Gmail API. 
     Args:
         subject: The exact subject line for the email.
-        report_content: The full formatted text content of the report for the email body.
+        email_body: The summarized email content (title, company, date, summary, and 3 bullet points).
+        report_content: The full formatted text content of the report to attach as a Word document.
     """
     recipient_email = "mateoviteri13579@gmail.com"
     
@@ -60,10 +63,40 @@ def send_email_tool(subject: str, report_content: str) -> str:
         message = EmailMessage()
         
         # Structure the email
-        message.set_content(report_content)
+        message.set_content(email_body)
         message['To'] = recipient_email
         message['From'] = "me"
         message['Subject'] = subject
+
+        # Create Word Document attachment
+        doc = Document()
+        for paragraph in report_content.split('\n'):
+            paragraph = paragraph.strip()
+            if not paragraph:
+                continue
+                
+            if paragraph.startswith('### '):
+                doc.add_heading(paragraph[4:], level=3)
+            elif paragraph.startswith('## '):
+                doc.add_heading(paragraph[3:], level=2)
+            elif paragraph.startswith('# '):
+                doc.add_heading(paragraph[2:], level=1)
+            elif paragraph.startswith('- ') or paragraph.startswith('* '):
+                doc.add_paragraph(paragraph[2:], style='List Bullet')
+            else:
+                doc.add_paragraph(paragraph)
+                
+        doc_io = io.BytesIO()
+        doc.save(doc_io)
+        doc_io.seek(0)
+        
+        # Attach the document
+        message.add_attachment(
+            doc_io.read(), 
+            maintype='application', 
+            subtype='vnd.openxmlformats-officedocument.wordprocessingml.document', 
+            filename='report.docx'
+        )
 
         # Gmail API requires the message to be base64url encoded
         encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
@@ -115,7 +148,7 @@ class System():
     def researcher(self) -> Agent:
         return Agent(
             config=self.agents_config['researcher'], 
-            verbose=False,
+            verbose=True,
             tools=[search_tool]
         )
 
@@ -123,7 +156,7 @@ class System():
     def data_validator(self) -> Agent:
         return Agent(
             config=self.agents_config['data_validator'], 
-            verbose=False,
+            verbose=True,
             tools=[url_check_tool]
         )
 
@@ -131,21 +164,21 @@ class System():
     def report_creator(self) -> Agent:
         return Agent(
             config=self.agents_config['report_creator'], 
-            verbose=False
+            verbose=True
         )
 
     @agent
     def report_validator(self) -> Agent:
         return Agent(
             config=self.agents_config['report_validator'], 
-            verbose=False
+            verbose=True
         )
 
     @agent
     def send_report(self) -> Agent:
         return Agent(
             config=self.agents_config['send_report'], 
-            verbose=False,
+            verbose=True,
             tools=[send_email_tool]
         )
 
@@ -179,6 +212,6 @@ class System():
         return Crew(
             agents=self.agents, 
             tasks=self.tasks, 
-            verbose=False,
+            verbose=True,
             process=Process.sequential
         )

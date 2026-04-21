@@ -50,8 +50,8 @@ report_creation_task:
     at the bottom of the report. You must include the original 
     news_item source (provided by the user) as Source #1 in the bibliography.
   expected_output: >
-    A fully fledged, extensive strategic report formatted as CLEAN PLAIN TEXT 
-    suitable for a direct email body.
+    A fully fledged, extensive strategic report strongly formatted in Markdown using 
+    Headers (##), Bullet points (-), and bold text (**).
   agent: report_creator
 
 report_validation_task:
@@ -68,13 +68,15 @@ report_validation_task:
 send_report_task:
   description: >
     Take the finalized and validated extensive report and prepare it for 
-    professional delivery using the provided template: {template}.
-    The report will contain a "SUBJECT:" line. You MUST extract this subject 
-    line to use as the email subject, and use the rest of the formatted report 
-    as the email body.
+    professional delivery.
+    The original report will contain a "SUBJECT:" line. You MUST extract this subject 
+    line to use as the email subject.
+    You must construct an email body strictly following the provided template: {template}. 
+    Populate the template fields based on the most important strategic findings from the report.
     You MUST execute the Email Sender Tool to actually deliver the report. 
-    Provide the extracted subject as the `subject` argument, and the report body 
-    as the `report_content` argument to the tool.
+    Provide the extracted subject as the `subject` argument.
+    Provide the populated template string as the `email_body` argument.
+    Provide the entire original finalized report as the `report_content` argument to the tool.
   expected_output: >
     A confirmation string that the email tool was successfully called and the report was sent.
   agent: send_report

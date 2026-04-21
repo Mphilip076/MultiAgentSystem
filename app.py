@@ -7,9 +7,9 @@ import datetime
 import concurrent.futures
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from google import genai
+import litellm
 
-# SETUP & PATHS
+# Load env variables
 load_dotenv()
 
 # Add System/src to path to import the Crew
@@ -23,11 +23,16 @@ except ImportError as e:
     sys.exit(1)
 
 # Scraper Configuration
-gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 DB_FILE = "processed_news.json"
 now = datetime.datetime.now()
 current_year = now.year
 current_month = now.strftime("%B")
+
+# Gemini Models
+# gemini-3-flash-preview
+# gemini-3.1-flash-lite-preview
+# gemini-2.5-flash
+# gemini-2.5-flash-lite
 
 # -------------------- DATABASE HELPERS --------------------#
 def load_db():
@@ -85,18 +90,26 @@ def clean_data_with_ai(company_name, raw_data):
             """
     try:
         full_prompt = f"System: You are a data extraction tool. Extract ONLY strategic news for {current_month} {current_year}. Return {{'items': []}} if nothing found.\n\nUser: {prompt}"
-        response = gemini_client.models.generate_content(
-            model="gemini-3-flash-preview",
-            contents=full_prompt,
-            config={"response_mime_type": "application/json"}
-        )
+        model_name = os.getenv("MODEL")
+        completion_kwargs = {
+            "model": model_name,
+            "messages": [{"role": "user", "content": full_prompt}],
+            "response_format": {"type": "json_object"}
+        }
+        
+        # Add api_base for Ollama models
+        if model_name.startswith("ollama/"):
+            completion_kwargs["api_base"] = os.getenv("OLLAMA_API_BASE")
+            
+        response = litellm.completion(**completion_kwargs)
         
         # Extract content from response
         try:
-            data = json.loads(response.text)
-        except:
-            # Fallback if markdown markers are present
-            text = response.text.strip()
+            content = response.choices[0].message.content
+            data = json.loads(content)
+        except Exception as e:
+            # Fallback if markdown markers are present in the string
+            text = response.choices[0].message.content.strip()
             if text.startswith("```json"):
                 text = text[7:-3].strip()
             data = json.loads(text)
@@ -133,7 +146,7 @@ def run_system():
                 print(f"   Fetched: {name}")
 
     # 2. Clean and Check for New Items
-    print(f"\nFiltering for strategic news using AI (Gemini)...")
+    print(f"\nFiltering for strategic news using AI...")
     for name, raw_data in scraped_results:
         items = clean_data_with_ai(name, raw_data)
         for item in items:
@@ -165,15 +178,15 @@ def run_system():
             'topic': 'Biopharmaceutical Market Dynamics and Competitor Strategy',
             'news_item': f"Source: {news['source_name']}. Title: {news['title']}. Date: {news.get('date', 'N/A')}. URL: {news.get('link', 'N/A')}",
             'template': (
-                "[title]\n"
+                "TITLE: [title]\n"
                 "COMPANY: [company name]\n"
                 f"DATE: {now.strftime('%B %d, %Y')}\n\n"
-                "WHAT HAPPENED:\n"
-                "COMPETITIVE IMPACT:\n"
-                "WHY IT MATTERS:\n"
-                "TELL ME MORE:\n"
-                "OUTLOOK:\n"
-                "SOURCE INFORMATION: [numbered list of sources, emphasizing name and URL]\n"
+                "QUICK SUMMARY:\n"
+                "[A brief summary of the most important findings]\n\n"
+                "KEY TAKEAWAYS:\n"
+                "- [bullet point 1]\n"
+                "- [bullet point 2]\n"
+                "- [bullet point 3]\n"
             ),
             'company_goals': (
                 "1. Protect market share in core Immunology and Oncology portfolios. "
