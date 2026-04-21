@@ -20,7 +20,7 @@ def test_email():
         
         print("Attempting to send test email...")
         # The @tool decorator wraps the function, so we use .invoke() to call it
-        result = send_email_tool.run("Hello!!!")
+        result = send_email_tool.run("Hello!!!", "Nothing", "Nothing")
         
         print("\nSUCCESS!")
         print(f"Tool Output: {result}")
