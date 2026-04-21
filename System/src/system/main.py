@@ -30,7 +30,17 @@ def run():
         inputs = {
             'topic': 'Biopharmaceutical Market Dynamics and Competitor Strategy',
             'news_item': f"Source: {article['title']}. Content: {article['snippet']}. URL: {article['link']}",
-            'template': "Executive Strategic Impact Brief",
+            'template': (
+                "TITLE: [title]\n"
+                "COMPANY: [company name]\n"
+                f"DATE: {datetime.now().strftime('%B %d, %Y')}\n\n"
+                "QUICK SUMMARY:\n"
+                "[A brief summary of the most important findings]\n\n"
+                "KEY TAKEAWAYS:\n"
+                "- [bullet point 1]\n"
+                "- [bullet point 2]\n"
+                "- [bullet point 3]\n"
+            ),
             'company_goals': (
                 "1. Protect market share in core Immunology and Oncology portfolios. "
                 "2. Monitor competitor R&D breakthroughs that may disrupt current standards of care. "

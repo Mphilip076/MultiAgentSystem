@@ -42,16 +42,24 @@ data_validation_task:
 report_creation_task:
   description: >
     Review the heavily detailed and validated context and transform it into a 
-    highly comprehensive, full-length report. Map the verified facts 
-    into deep strategic impacts, explaining the competitive landscape and 
-    long-term consequences for {topic} based on this news event and its 
-    broader context. You must append a complete list of all sources, 
-    URLs, and references discovered and used during the research phase 
-    at the bottom of the report. You must include the original 
-    news_item source (provided by the user) as Source #1 in the bibliography.
+    highly comprehensive, full-length strategic report.
+    You MUST structure the report using the following markdown headers:
+    # TITLE: [Title] (Remove "Research Dossier:" from the title)
+    ## COMPANY: [Company Name]
+    ## DATE: [Date]
+    
+    ## WHAT HAPPENED
+    ## COMPETITIVE IMPACT
+    ## WHY IT MATTERS
+    ## TELL ME MORE
+    ## OUTLOOK
+    
+    ## SOURCE INFORMATION
+    (Followed by a numbered list of all sources and exact URLs).
   expected_output: >
-    A fully fledged, extensive strategic report formatted as CLEAN PLAIN TEXT 
-    suitable for a direct email body.
+    A fully fledged, extensive strategic report in Markdown format following the 
+    prescribed 5-section structure. Do not use markdown bolding markers (**) 
+    inside the paragraphs.
   agent: report_creator
 
 report_validation_task:
@@ -68,13 +76,15 @@ report_validation_task:
 send_report_task:
   description: >
     Take the finalized and validated extensive report and prepare it for 
-    professional delivery using the provided template: {template}.
-    The report will contain a "SUBJECT:" line. You MUST extract this subject 
-    line to use as the email subject, and use the rest of the formatted report 
-    as the email body.
+    professional delivery.
+    The original report will contain a "SUBJECT:" line. You MUST extract this subject 
+    line to use as the email subject.
+    You must construct an email body strictly following the provided template: {template}. 
+    Populate the template fields based on the most important strategic findings from the report.
     You MUST execute the Email Sender Tool to actually deliver the report. 
-    Provide the extracted subject as the `subject` argument, and the report body 
-    as the `report_content` argument to the tool.
+    Provide the extracted subject as the `subject` argument.
+    Provide the populated template string as the `email_body` argument.
+    Provide the entire original finalized report as the `report_content` argument to the tool.
   expected_output: >
     A confirmation string that the email tool was successfully called and the report was sent.
   agent: send_report
