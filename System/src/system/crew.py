@@ -1,12 +1,10 @@
-from crewai import Agent, Crew, Process, Task
+from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from pydantic import BaseModel, Field
-from typing import List
 from crewai_tools import SerperDevTool
 import os
 import base64
-import datetime
 from email.message import EmailMessage
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -15,6 +13,10 @@ from crewai.tools import tool
 import requests
 import io
 from docx import Document
+import docx
+import re
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 
 # Initialize the tools
 search_tool = SerperDevTool()
@@ -68,23 +70,70 @@ def send_email_tool(subject: str, email_body: str, report_content: str) -> str:
         message['From'] = "me"
         message['Subject'] = subject
 
+        def insert_hyperlink(paragraph, text, url):
+            part = paragraph.part
+            r_id = part.relate_to(url, docx.opc.constants.RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
+
+            hyperlink = OxmlElement('w:hyperlink')
+            hyperlink.set(qn('r:id'), r_id)
+
+            new_run = OxmlElement('w:r')
+            
+            rPr = OxmlElement('w:rPr')
+            color = OxmlElement('w:color')
+            color.set(qn('w:val'), '0000EE')
+            rPr.append(color)
+            
+            u = OxmlElement('w:u')
+            u.set(qn('w:val'), 'single')
+            rPr.append(u)
+            
+            new_run.append(rPr)
+            
+            text_elem = OxmlElement('w:t')
+            text_elem.text = text
+            new_run.append(text_elem)
+            
+            hyperlink.append(new_run)
+            paragraph._p.append(hyperlink)
+
+        def parse_and_add_links(paragraph, text):
+            pattern = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')
+            last_end = 0
+            for match in pattern.finditer(text):
+                start, end = match.span()
+                if start > last_end:
+                    paragraph.add_run(text[last_end:start])
+                link_text = match.group(1)
+                url = match.group(2)
+                insert_hyperlink(paragraph, link_text, url)
+                last_end = end
+                
+            if last_end < len(text):
+                paragraph.add_run(text[last_end:])
+
         # Create Word Document attachment
         doc = Document()
         for paragraph in report_content.split('\n'):
-            paragraph = paragraph.strip()
+            paragraph = paragraph.strip().replace('**', '')
             if not paragraph:
                 continue
                 
             if paragraph.startswith('### '):
-                doc.add_heading(paragraph[4:], level=3)
+                p = doc.add_heading(level=3)
+                parse_and_add_links(p, paragraph[4:])
             elif paragraph.startswith('## '):
-                doc.add_heading(paragraph[3:], level=2)
+                p = doc.add_heading(level=2)
+                parse_and_add_links(p, paragraph[3:])
             elif paragraph.startswith('# '):
-                doc.add_heading(paragraph[2:], level=1)
+                p = doc.add_heading(level=1)
+                parse_and_add_links(p, paragraph[2:])
             elif paragraph.startswith('- ') or paragraph.startswith('* '):
-                doc.add_paragraph(paragraph[2:], style='List Bullet')
+                p = doc.add_paragraph(style='List Bullet')
+                parse_and_add_links(p, paragraph[2:])
             else:
-                doc.add_paragraph(paragraph)
+                p = doc.add_paragraph()
+                parse_and_add_links(p, paragraph)
                 
         doc_io = io.BytesIO()
         doc.save(doc_io)
@@ -149,7 +198,8 @@ class System():
         return Agent(
             config=self.agents_config['researcher'], 
             verbose=True,
-            tools=[search_tool]
+            tools=[search_tool],
+            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"))
         )
 
     @agent
@@ -157,21 +207,24 @@ class System():
         return Agent(
             config=self.agents_config['data_validator'], 
             verbose=True,
-            tools=[url_check_tool]
+            tools=[url_check_tool],
+            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"))
         )
 
     @agent
     def report_creator(self) -> Agent:
         return Agent(
             config=self.agents_config['report_creator'], 
-            verbose=True
+            verbose=True,
+            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"))
         )
 
     @agent
     def report_validator(self) -> Agent:
         return Agent(
             config=self.agents_config['report_validator'], 
-            verbose=True
+            verbose=True,
+            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"))
         )
 
     @agent
@@ -179,7 +232,8 @@ class System():
         return Agent(
             config=self.agents_config['send_report'], 
             verbose=True,
-            tools=[send_email_tool]
+            tools=[send_email_tool],
+            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"))
         )
 
     # --- TASKS --- #

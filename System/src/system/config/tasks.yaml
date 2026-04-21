@@ -44,7 +44,7 @@ report_creation_task:
     Review the heavily detailed and validated context and transform it into a 
     highly comprehensive, full-length strategic report.
     You MUST structure the report using the following markdown headers:
-    # [TITLE]
+    # TITLE: [Title] (Remove "Research Dossier:" from the title)
     ## COMPANY: [Company Name]
     ## DATE: [Date]
     
@@ -58,7 +58,8 @@ report_creation_task:
     (Followed by a numbered list of all sources and exact URLs).
   expected_output: >
     A fully fledged, extensive strategic report in Markdown format following the 
-    prescribed 5-section structure, ready to be converted into a Word document.
+    prescribed 5-section structure. Do not use markdown bolding markers (**) 
+    inside the paragraphs.
   agent: report_creator
 
 report_validation_task:
