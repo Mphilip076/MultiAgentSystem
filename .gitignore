@@ -21,4 +21,3 @@ processed_news.json
 credentials.json
 token.json
 .devcontainer
-test_email.py
