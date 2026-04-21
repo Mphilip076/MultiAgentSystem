@@ -182,11 +182,12 @@ def run_system():
                 "COMPANY: [company name]\n"
                 f"DATE: {now.strftime('%B %d, %Y')}\n\n"
                 "QUICK SUMMARY:\n"
-                "[A brief summary of the most important findings]\n\n"
+                "[A high-level summary of the clinical/strategic event]\n\n"
                 "KEY TAKEAWAYS:\n"
-                "- [bullet point 1]\n"
-                "- [bullet point 2]\n"
-                "- [bullet point 3]\n"
+                "- [Takeaway 1]\n"
+                "- [Takeaway 2]\n"
+                "- [Takeaway 3]\n\n"
+                "Find the report attached bellow."
             ),
             'company_goals': (
                 "1. Protect market share in core Immunology and Oncology portfolios. "
