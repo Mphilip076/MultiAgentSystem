@@ -119,13 +119,13 @@ def send_email_tool(subject: str, email_body: str, report_content: str) -> str:
             if not paragraph:
                 continue
                 
-            if paragraph.startswith('### '):
+            if paragraph.startswith('#### '):
                 p = doc.add_heading(level=3)
                 parse_and_add_links(p, paragraph[4:])
-            elif paragraph.startswith('## '):
+            elif paragraph.startswith('### '):
                 p = doc.add_heading(level=2)
                 parse_and_add_links(p, paragraph[3:])
-            elif paragraph.startswith('# '):
+            elif paragraph.startswith('## '):
                 p = doc.add_heading(level=1)
                 parse_and_add_links(p, paragraph[2:])
             elif paragraph.startswith('- ') or paragraph.startswith('* '):
