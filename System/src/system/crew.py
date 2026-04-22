@@ -199,7 +199,7 @@ class System():
             config=self.agents_config['researcher'], 
             verbose=True,
             tools=[search_tool],
-            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"))
+            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"), temperature=0)
         )
 
     @agent
@@ -208,7 +208,7 @@ class System():
             config=self.agents_config['data_validator'], 
             verbose=True,
             tools=[url_check_tool],
-            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"))
+            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"), temperature=0)
         )
 
     @agent
@@ -216,7 +216,7 @@ class System():
         return Agent(
             config=self.agents_config['report_creator'], 
             verbose=True,
-            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"))
+            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"), temperature=0)
         )
 
     @agent
@@ -224,7 +224,7 @@ class System():
         return Agent(
             config=self.agents_config['report_validator'], 
             verbose=True,
-            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"))
+            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"), temperature=0)
         )
 
     @agent
@@ -233,7 +233,7 @@ class System():
             config=self.agents_config['send_report'], 
             verbose=True,
             tools=[send_email_tool],
-            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"))
+            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"), temperature=0)
         )
 
     # --- TASKS --- #

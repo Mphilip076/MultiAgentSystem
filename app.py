@@ -94,7 +94,8 @@ def clean_data_with_ai(company_name, raw_data):
         completion_kwargs = {
             "model": model_name,
             "messages": [{"role": "user", "content": full_prompt}],
-            "response_format": {"type": "json_object"}
+            "response_format": {"type": "json_object"},
+            "temperature": 0
         }
         
         # Add api_base for Ollama models

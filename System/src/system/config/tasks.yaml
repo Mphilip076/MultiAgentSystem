@@ -47,13 +47,11 @@ report_creation_task:
     # TITLE: [Title] (Remove "Research Dossier:" from the title)
     ## COMPANY: [Company Name]
     ## DATE: [Date]
-    
     ## WHAT HAPPENED
     ## COMPETITIVE IMPACT
     ## WHY IT MATTERS
     ## TELL ME MORE
     ## OUTLOOK
-    
     ## SOURCE INFORMATION
     (Followed by a numbered list of all sources and exact URLs).
   expected_output: >
