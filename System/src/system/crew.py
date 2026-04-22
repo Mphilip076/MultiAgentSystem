@@ -179,11 +179,15 @@ def url_check_tool(url: str) -> str:
         return f"Failed to connect to URL. Error: {str(e)}"
 
 class ReportTemplate(BaseModel):
+    title: str = Field(description="The title of the report. Remove 'Research Dossier:' from the title.")
+    company: str = Field(description="The name of the primary company involved.")
+    date: str = Field(description="The date of the event or report.")
     what_happened: str = Field(description="A clear and concise summary of the core event or news.")
     competitive_impact: str = Field(description="Detailed analysis of how this impacts the competitive landscape.")
     why_it_matters: str = Field(description="Explanation of the strategic significance and alignment with company goals.")
     tell_me_more: str = Field(description="The actual verified facts and detailed background context extracted from the validated data.")
     outlook: str = Field(description="Actionable strategic recommendations, future outlook, and competitor activities to monitor.")
+    source_information: str = Field(description="A numbered list of all sources and exact URLs used.")
 
 @CrewBase
 class System():

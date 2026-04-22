@@ -43,32 +43,34 @@ report_creation_task:
   description: >
     Review the heavily detailed and validated context and transform it into a 
     highly comprehensive, full-length strategic report.
-    You MUST structure the report using the following markdown headers:
-    # TITLE: [Title] (Remove "Research Dossier:" from the title)
-    ## COMPANY: [Company Name]
-    ## DATE: [Date]
+    You MUST structure the report by extracting and populating the provided JSON schema fields 
+    (title, company, date, what_happened, competitive_impact, why_it_matters, tell_me_more, outlook, source_information) 
+    with detailed content. Make sure to capture a numbered list of all sources and exact URLs for the source_information field.
+  expected_output: >
+    A comprehensive strategic report strictly structured as a valid JSON object matching the provided Pydantic schema. 
+    Do not use markdown bolding markers (**) inside the content paragraphs.
+  agent: report_creator
+
+report_validation_task:
+  description: >
+    Review the generated structural JSON report data for structural integrity, logical flow,
+    formatting consistency, and professional tone. Ensure that the original vetted facts
+    were strictly adhered to without being altered to sound better. Verify that the 
+    bibliography contains the FULL exact URLs and links for all sources exactly as they were found.
+    You MUST transform the validated report data into a well-formatted Markdown document.
+    Use exactly the following headers:
+    # TITLE: [title]
+    ## COMPANY: [company]
+    ## DATE: [date]
     ## WHAT HAPPENED
     ## COMPETITIVE IMPACT
     ## WHY IT MATTERS
     ## TELL ME MORE
     ## OUTLOOK
     ## SOURCE INFORMATION
-    (Followed by a numbered list of all sources and exact URLs).
   expected_output: >
-    A fully fledged, extensive strategic report in Markdown format following the 
-    prescribed 5-section structure. Do not use markdown bolding markers (**) 
-    inside the paragraphs.
-  agent: report_creator
-
-report_validation_task:
-  description: >
-    Review the generated strategic report for structural integrity, logical flow,
-    formatting consistency, and professional tone. Ensure that the original vetted facts
-    were strictly adhered to without being altered to sound better. Verify that the 
-    bibliography contains the FULL exact URLs and links for all sources exactly as they were found, without any hallucinated modifications.
-  expected_output: >
-    The final, polished and fully vetted version of the extensive report, ensuring 
-    that exact URLs for all sources are preserved natively and functional.
+    The final, polished and fully vetted version of the extensive report fully formatted as a Markdown document. 
+    Ensure that exact URLs for all sources are preserved natively and fully functional.
   agent: report_validator
 
 send_report_task:
