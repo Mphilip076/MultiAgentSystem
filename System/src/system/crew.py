@@ -180,7 +180,7 @@ def url_check_tool(url: str) -> str:
 
 class ReportTemplate(BaseModel):
     title: str = Field(description="The title of the report. Remove 'Research Dossier:' from the title.")
-    company: str = Field(description="The name of the primary company involved.")
+    company: str = Field(description="The name of the primary company involved (or source name if N/A).")
     date: str = Field(description="The date of the event or report.")
     what_happened: str = Field(description="A clear and concise summary of the core event or news.")
     competitive_impact: str = Field(description="Detailed analysis of how this impacts the competitive landscape.")
@@ -203,7 +203,7 @@ class System():
             config=self.agents_config['researcher'], 
             verbose=True,
             tools=[search_tool],
-            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"), temperature=0)
+            llm=LLM(model=os.getenv("MODEL"), temperature=0)
         )
 
     @agent
@@ -212,7 +212,7 @@ class System():
             config=self.agents_config['data_validator'], 
             verbose=True,
             tools=[url_check_tool],
-            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"), temperature=0)
+            llm=LLM(model=os.getenv("MODEL"), temperature=0)
         )
 
     @agent
@@ -220,7 +220,7 @@ class System():
         return Agent(
             config=self.agents_config['report_creator'], 
             verbose=True,
-            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"), temperature=0)
+            llm=LLM(model=os.getenv("MODEL"), temperature=0)
         )
 
     @agent
@@ -228,7 +228,7 @@ class System():
         return Agent(
             config=self.agents_config['report_validator'], 
             verbose=True,
-            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"), temperature=0)
+            llm=LLM(model=os.getenv("MODEL"), temperature=0)
         )
 
     @agent
@@ -237,7 +237,7 @@ class System():
             config=self.agents_config['send_report'], 
             verbose=True,
             tools=[send_email_tool],
-            llm=LLM(model=os.getenv("MODEL"), base_url=os.getenv("OLLAMA_API_BASE"), temperature=0)
+            llm=LLM(model=os.getenv("MODEL"), temperature=0)
         )
 
     # --- TASKS --- #

@@ -34,6 +34,11 @@ current_month = now.strftime("%B")
 # gemini-2.5-flash
 # gemini-2.5-flash-lite
 
+# SambaNova Models (Requires SAMBANOVA_API_KEY in .env)
+# sambanova/Meta-Llama-3.1-8B-Instruct
+# sambanova/Meta-Llama-3.1-70B-Instruct
+# sambanova/Meta-Llama-3.1-405B-Instruct
+
 # -------------------- DATABASE HELPERS --------------------#
 def load_db():
     if os.path.exists(DB_FILE):
