@@ -36,17 +36,6 @@ data_validation_task:
        · flag: mixed or incomplete evidence
        · reject: low credibility, weak support, or not reportable
         RULES: Never invent facts. Be conservative on cross-verification. Return ONLY valid JSON.
-        SCHEMA:
-        {
-          "source_name": "string", "source_type": "string", "company_name": "string", "date": "string",
-          "claim": "string", "authority_score": 1, "evidence_strength_score": 1, "transparency_score": 1,
-          "recency_score": 1, "bias_risk_score": 1, "credibility_score_total": 5,
-          "verification_status": "unverified", "direct_support_score": 0, "cross_verification_score": 0,
-          "specificity_score": 0, "consistency_score": 0, "claim_verification_total": 0,
-          "report_worthiness_score": 1, "decision": "flag", "reasoning": "string",
-          "missing_information": ["string"], "supporting_evidence": ["string"],
-          "bibliography": [{"title": "string", "url": "string", "status": "valid | discarded"}]
-        }
   expected_output: >
     A vetted JSON audit object and a cleaned dossier with only validated sources, ready for report generation.
   agent: data_validator
