@@ -22,21 +22,33 @@ research_task:
 
 data_validation_task:
   description: >
-    Review the extensive research dossier compiled by the researcher regarding 
-    the news event: {news_item}. Rigorously fact-check and cross-reference 
-    all of the incorporated background data and context. Eliminate any 
-    hallucinations, inaccuracies, or logically inconsistent data points to 
-    ensure the research is entirely bulletproof. Include company name, date, and a 
-    bibliography that includes the FULL exact URLs. 
-    Ensure NO URLs have been hallucinated or modified. The links must be verbatim 
-    from the search results, even if the URL string contains an older year. 
-    You must use the URL Checker Tool on EVERY SINGLE LINK in your compiled bibliography. 
-    If a link returns an invalid status code, a 404 error, or fails to connect, you must completely 
-    discard that source from the research dossier before passing it to the report creator.
+       Extract the single most important factual claim.
+       Fact-check all data — remove hallucinations, inaccuracies, and inconsistencies.
+       Run the URL Checker Tool on every link. Discard any source returning 404, invalid, or failed status.
+       Score the source (1–5 each): authority, evidence_strength, transparency, recency, bias_risk.
+       credibility_score_total = sum of five.
+       Score the claim (0–2 each): direct_support, cross_verification, specificity, consistency.
+       claim_verification_total = sum of four.
+       Assign verification_status: verified | partially_verified | unverified.
+       Assign report_worthiness_score: 1–5.
+       Assign decision: pass | flag | reject.
+       · pass: credibility_score_total >= 18 AND claim_verification_total >= 6 AND report_worthiness_score >= 3
+       · flag: mixed or incomplete evidence
+       · reject: low credibility, weak support, or not reportable
+        RULES: Never invent facts. Be conservative on cross-verification. Return ONLY valid JSON.
+        SCHEMA:
+        {
+          "source_name": "string", "source_type": "string", "company_name": "string", "date": "string",
+          "claim": "string", "authority_score": 1, "evidence_strength_score": 1, "transparency_score": 1,
+          "recency_score": 1, "bias_risk_score": 1, "credibility_score_total": 5,
+          "verification_status": "unverified", "direct_support_score": 0, "cross_verification_score": 0,
+          "specificity_score": 0, "consistency_score": 0, "claim_verification_total": 0,
+          "report_worthiness_score": 1, "decision": "flag", "reasoning": "string",
+          "missing_information": ["string"], "supporting_evidence": ["string"],
+          "bibliography": [{"title": "string", "url": "string", "status": "valid | discarded"}]
+        }
   expected_output: >
-    A refined, fully vetted, and comprehensive dossier of validated facts and 
-    deep-dive research, absolutely free of hallucinations and ready for `
-    report generation.
+    A vetted JSON audit object and a cleaned dossier with only validated sources, ready for report generation.
   agent: data_validator
 
 report_creation_task:
