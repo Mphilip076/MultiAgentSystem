@@ -110,17 +110,20 @@ def clean_data_with_ai(company_name, raw_data):
         response = litellm.completion(**completion_kwargs)
         
         # Extract content from response
-        try:
-            content = response.choices[0].message.content
-            data = json.loads(content)
-        except Exception as e:
-            # Fallback if markdown markers are present in the string
-            text = response.choices[0].message.content.strip()
-            if text.startswith("```json"):
-                text = text[7:-3].strip()
-            data = json.loads(text)
-            
-        return data.get("items", [])
+        text = response.choices[0].message.content.strip()
+        # Most reliable method is regex to extract json block
+        import re
+        match = re.search(r'```(?:json)?\s*(\{[\s\S]*\}|\[[\s\S]*\])\s*```', text)
+        if match:
+            text = match.group(1)
+        else:
+            # Try to find JSON-like structure if backticks are missing
+            match = re.search(r'(\{[\s\S]*\}|\[[\s\S]*\])', text)
+            if match:
+                text = match.group(1)
+                
+        data = json.loads(text)
+        return data.get("items", [])     
     except Exception as e:
         print(f"AI cleaning failed!! Error: {e}")
         return []

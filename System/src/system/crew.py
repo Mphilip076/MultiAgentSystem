@@ -203,7 +203,7 @@ class System():
             config=self.agents_config['researcher'], 
             verbose=True,
             tools=[search_tool],
-            llm=LLM(model=os.getenv("MODEL"), temperature=0)
+            llm=LLM(model=os.getenv("MODEL"), temperature=0.2, max_tokens=4096)
         )
 
     @agent
@@ -212,7 +212,7 @@ class System():
             config=self.agents_config['data_validator'], 
             verbose=True,
             tools=[url_check_tool],
-            llm=LLM(model=os.getenv("MODEL"), temperature=0)
+            llm=LLM(model=os.getenv("MODEL"), temperature=0.2, max_tokens=4096)
         )
 
     @agent
@@ -220,7 +220,7 @@ class System():
         return Agent(
             config=self.agents_config['report_creator'], 
             verbose=True,
-            llm=LLM(model=os.getenv("MODEL"), temperature=0)
+            llm=LLM(model=os.getenv("MODEL"), temperature=0.2, max_tokens=4096)
         )
 
     @agent
@@ -228,7 +228,7 @@ class System():
         return Agent(
             config=self.agents_config['report_validator'], 
             verbose=True,
-            llm=LLM(model=os.getenv("MODEL"), temperature=0)
+            llm=LLM(model=os.getenv("MODEL"), temperature=0.2, max_tokens=4096)
         )
 
     @agent
@@ -237,7 +237,7 @@ class System():
             config=self.agents_config['send_report'], 
             verbose=True,
             tools=[send_email_tool],
-            llm=LLM(model=os.getenv("MODEL"), temperature=0)
+            llm=LLM(model=os.getenv("MODEL"), temperature=0.2, max_tokens=4096)
         )
 
     # --- TASKS --- #
