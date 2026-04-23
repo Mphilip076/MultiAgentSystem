@@ -119,13 +119,13 @@ def send_email_tool(subject: str, email_body: str, report_content: str) -> str:
             if not paragraph:
                 continue
                 
-            if paragraph.startswith('#### '):
+            if paragraph.startswith('### '):
                 p = doc.add_heading(level=3)
                 parse_and_add_links(p, paragraph[4:])
-            elif paragraph.startswith('### '):
+            elif paragraph.startswith('## '):
                 p = doc.add_heading(level=2)
                 parse_and_add_links(p, paragraph[3:])
-            elif paragraph.startswith('## '):
+            elif paragraph.startswith('# '):
                 p = doc.add_heading(level=1)
                 parse_and_add_links(p, paragraph[2:])
             elif paragraph.startswith('- ') or paragraph.startswith('* '):
@@ -179,15 +179,15 @@ def url_check_tool(url: str) -> str:
         return f"Failed to connect to URL. Error: {str(e)}"
 
 class ReportTemplate(BaseModel):
-    title: str = Field(description="The title of the report. Remove 'Research Dossier:' from the title.")
-    company: str = Field(description="The name of the primary company involved (or source name if N/A).")
-    date: str = Field(description="The date of the event or report.")
-    what_happened: str = Field(description="A clear and concise summary of the core event or news.")
-    competitive_impact: str = Field(description="Detailed analysis of how this impacts the competitive landscape.")
-    why_it_matters: str = Field(description="Explanation of the strategic significance and alignment with company goals.")
-    tell_me_more: str = Field(description="The actual verified facts and detailed background context extracted from the validated data.")
-    outlook: str = Field(description="Actionable strategic recommendations, future outlook, and competitor activities to monitor.")
-    source_information: str = Field(description="A numbered list of all sources and exact URLs used.")
+    title: str = Field(default="Untitled", description="The title of the report. Remove 'Research Dossier:' from the title.")
+    company: str = Field(default="Unknown", description="The name of the primary company involved (or source name if N/A).")
+    date: str = Field(default="Unknown Date", description="The date of the event or report.")
+    what_happened: str = Field(default="", description="A clear and concise summary of the core event or news.")
+    competitive_impact: str = Field(default="", description="Detailed analysis of how this impacts the competitive landscape.")
+    why_it_matters: str = Field(default="", description="Explanation of the strategic significance and alignment with company goals.")
+    tell_me_more: str = Field(default="", description="The actual verified facts and detailed background context extracted from the validated data.")
+    outlook: str = Field(default="", description="Actionable strategic recommendations, future outlook, and competitor activities to monitor.")
+    source_information: str = Field(default="", description="A numbered list of all sources and exact URLs used.")
 
 @CrewBase
 class System():
@@ -203,7 +203,8 @@ class System():
             config=self.agents_config['researcher'], 
             verbose=True,
             tools=[search_tool],
-            llm=LLM(model=os.getenv("MODEL"), temperature=0.2, max_tokens=4096)
+            max_iter=3,
+            llm=LLM(model="anthropic/claude-haiku-4-5-20251001", temperature=0.2, max_tokens=8192)
         )
 
     @agent
@@ -212,7 +213,8 @@ class System():
             config=self.agents_config['data_validator'], 
             verbose=True,
             tools=[url_check_tool],
-            llm=LLM(model=os.getenv("MODEL"), temperature=0.2, max_tokens=4096)
+            max_iter=3,
+            llm=LLM(model="anthropic/claude-haiku-4-5-20251001", temperature=0.2, max_tokens=8192)
         )
 
     @agent
@@ -220,7 +222,7 @@ class System():
         return Agent(
             config=self.agents_config['report_creator'], 
             verbose=True,
-            llm=LLM(model=os.getenv("MODEL"), temperature=0.2, max_tokens=4096)
+            llm=LLM(model="anthropic/claude-sonnet-4-5-20250929", temperature=0.2, max_tokens=8192)
         )
 
     @agent
@@ -228,7 +230,7 @@ class System():
         return Agent(
             config=self.agents_config['report_validator'], 
             verbose=True,
-            llm=LLM(model=os.getenv("MODEL"), temperature=0.2, max_tokens=4096)
+            llm=LLM(model="anthropic/claude-haiku-4-5-20251001", temperature=0.2, max_tokens=8192)
         )
 
     @agent
@@ -237,7 +239,8 @@ class System():
             config=self.agents_config['send_report'], 
             verbose=True,
             tools=[send_email_tool],
-            llm=LLM(model=os.getenv("MODEL"), temperature=0.2, max_tokens=4096)
+            max_iter=3,
+            llm=LLM(model="anthropic/claude-sonnet-4-5-20250929", temperature=0.2, max_tokens=8192)
         )
 
     # --- TASKS --- #

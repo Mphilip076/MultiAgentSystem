@@ -28,17 +28,6 @@ now = datetime.datetime.now()
 current_year = now.year
 current_month = now.strftime("%B")
 
-# Gemini Models
-# gemini-3-flash-preview
-# gemini-3.1-flash-lite-preview
-# gemini-2.5-flash
-# gemini-2.5-flash-lite
-
-# SambaNova Models (Requires SAMBANOVA_API_KEY in .env)
-# sambanova/Meta-Llama-3.1-8B-Instruct
-# sambanova/Meta-Llama-3.1-70B-Instruct
-# sambanova/Meta-Llama-3.1-405B-Instruct
-
 # -------------------- DATABASE HELPERS --------------------#
 def load_db():
     if os.path.exists(DB_FILE):
@@ -95,17 +84,11 @@ def clean_data_with_ai(company_name, raw_data):
             """
     try:
         full_prompt = f"System: You are a data extraction tool. Extract ONLY strategic news for {current_month} {current_year}. Return {{'items': []}} if nothing found.\n\nUser: {prompt}"
-        model_name = os.getenv("MODEL")
         completion_kwargs = {
-            "model": model_name,
+            "model": "anthropic/claude-haiku-4-5-20251001",
             "messages": [{"role": "user", "content": full_prompt}],
-            "response_format": {"type": "json_object"},
             "temperature": 0
         }
-        
-        # Add api_base for Ollama models
-        if model_name.startswith("ollama/"):
-            completion_kwargs["api_base"] = os.getenv("OLLAMA_API_BASE")
             
         response = litellm.completion(**completion_kwargs)
         

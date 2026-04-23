@@ -1,64 +1,32 @@
 research_task:
   description: >
-    You are given a recent news event about {topic}: {news_item}. 
-    Use this event as a starting point to conduct deep, extensive research. 
-    Find additional background, related announcements, and 
-    market reactions to build a highly comprehensive view of the situation. 
-    Focus ONLY on recent developments and the latest information surrounding the date of the news item. 
-    It is extremely important that you anchor your analysis to the current news rather than 
-    substituting it entirely with older context. Do not focus on outdated historical context 
-    (e.g. data from 2023) unless strictly necessary for a brief mention. Do not just summarize 
-    the provided article—expand upon it significantly with your own independent research tools.
+    Research the following news event: {topic} - {news_item}. 
+    Focus strictly on recent developments, market reactions, and related announcements to expand upon the provided article. Avoid relying on outdated historical data.
   expected_output: >
-    An extensive, highly detailed research dossier containing as much 
-    information as possible about the event, its background, and its broader 
-    strategic implications, formatted as comprehensive structured notes.
-    You must include company name, date, and a structured bibliography or list of exact 
-    URLs and sources used for your research so they can be referenced later.
-    You must include the original URL provided in the `news_item` as Source #1 in your bibliography.
-    For all other sources, you must use the EXACT, unaltered 'link' string provided by your search tool. 
-    DO NOT hallucinate, guess, or modify the URLs in any way (especially do not change years/dates inside the URL strings).
+    A detailed research dossier formatted as structured notes. It must include the company name, date, and a bibliography.
+    The original URL from `news_item` MUST be Source #1 in the bibliography. Use exact, unaltered URLs for all other sources.
   agent: researcher
 
 data_validation_task:
   description: >
-    Review the extensive research dossier compiled by the researcher regarding 
-    the news event: {news_item}. Rigorously fact-check and cross-reference 
-    all of the incorporated background data and context. Eliminate any 
-    hallucinations, inaccuracies, or logically inconsistent data points to 
-    ensure the research is entirely bulletproof. Include company name, date, and a 
-    bibliography that includes the FULL exact URLs. 
-    Ensure NO URLs have been hallucinated or modified. The links must be verbatim 
-    from the search results, even if the URL string contains an older year. 
-    You must use the URL Checker Tool on EVERY SINGLE LINK in your compiled bibliography. 
-    If a link returns an invalid status code, a 404 error, or fails to connect, you must completely 
-    discard that source from the research dossier before passing it to the report creator.
+    Fact-check the researcher's dossier regarding {news_item}. Eliminate any inaccuracies or logical inconsistencies.
+    Use the URL Checker Tool to test EVERY link in the bibliography. Discard any sources that return a 404 or fail to connect.
   expected_output: >
-    A refined, fully vetted, and comprehensive dossier of validated facts and 
-    deep-dive research, absolutely free of hallucinations and ready for `
-    report generation.
+    A fully vetted, fact-checked dossier. Ensure all remaining bibliography links are verified working URLs.
   agent: data_validator
 
 report_creation_task:
   description: >
-    Review the heavily detailed and validated context and transform it into a 
-    highly comprehensive, full-length strategic report.
-    You MUST structure the report by extracting and populating the provided JSON schema fields 
-    (title, company, date, what_happened, competitive_impact, why_it_matters, tell_me_more, outlook, source_information) 
-    with detailed content. Make sure to capture a numbered list of all sources and exact URLs for the source_information field.
+    Transform the validated dossier into a strategic report. Extract the relevant insights to populate the provided JSON schema fields.
+    Keep the generated content highly concise and strictly to the point. Do not write extremely long paragraphs.
   expected_output: >
-    A comprehensive strategic report strictly structured as a valid JSON object matching the provided Pydantic schema. 
-    Do not use markdown bolding markers (**) inside the content paragraphs.
+    A concise strategic report strictly structured as a valid JSON object matching the provided Pydantic schema. Include the numbered source list.
   agent: report_creator
 
 report_validation_task:
   description: >
-    Review the generated structural JSON report data for structural integrity, logical flow,
-    formatting consistency, and professional tone. Ensure that the original vetted facts
-    were strictly adhered to without being altered to sound better. Verify that the 
-    bibliography contains the FULL exact URLs and links for all sources exactly as they were found.
-    You MUST transform the validated report data into a well-formatted Markdown document.
-    Use exactly the following headers:
+    Format the structured JSON report data into a polished Markdown document.
+    You MUST use exactly these headers:
     # TITLE: [title]
     ## COMPANY: [company]
     ## DATE: [date]
@@ -69,22 +37,17 @@ report_validation_task:
     ## OUTLOOK
     ## SOURCE INFORMATION
   expected_output: >
-    The final, polished and fully vetted version of the extensive report fully formatted as a Markdown document. 
-    Ensure that exact URLs for all sources are preserved natively and fully functional.
+    The final, formatted Markdown report.
   agent: report_validator
 
 send_report_task:
   description: >
-    Take the finalized and validated extensive report and prepare it for 
-    professional delivery.
-    The original report will contain a "SUBJECT:" line. You MUST extract this subject 
-    line to use as the email subject.
-    You must construct an email body strictly following the provided template: {template}. 
-    Populate the template fields based on the most important strategic findings from the report.
-    You MUST execute the Email Sender Tool to actually deliver the report. 
-    Provide the extracted subject as the `subject` argument.
-    Provide the populated template string as the `email_body` argument.
-    Provide the entire original finalized report as the `report_content` argument to the tool.
+    Extract the "SUBJECT:" line from the finalized report to use as the email subject.
+    Populate the email body using this template: {template}.
+    Execute the Email Sender Tool to deliver the report payload. You MUST provide all three arguments exactly:
+    1. 'subject': The extracted subject string.
+    2. 'email_body': The populated template string.
+    3. 'report_content': The full, complete Markdown text of the finalized report.
   expected_output: >
-    A confirmation string that the email tool was successfully called and the report was sent.
+    A confirmation string that the Email Sender Tool was successfully called.
   agent: send_report
