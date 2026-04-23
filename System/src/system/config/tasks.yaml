@@ -17,10 +17,11 @@ data_validation_task:
 
 report_creation_task:
   description: >
-    Transform the validated dossier into a strategic report. Extract the relevant insights to populate the provided JSON schema fields.
-    Keep the generated content highly concise and strictly to the point. Do not write extremely long paragraphs.
+    Transform the validated dossier into a strategic report explicitly tailored for AbbVie. Extract the relevant insights to populate the provided JSON schema fields.
+    Synthesize the information. Keep sections punchy and executive-friendly.
+    Limit each text section to a maximum of 1-2 short paragraphs and/or 3-4 impactful bullet points.
   expected_output: >
-    A concise strategic report strictly structured as a valid JSON object matching the provided Pydantic schema. Include the numbered source list.
+    A concise, highly scannable strategic report strictly structured as a valid JSON object matching the provided Pydantic schema. Include the numbered source list.
   agent: report_creator
 
 report_validation_task:
@@ -31,11 +32,11 @@ report_validation_task:
     ## COMPANY: [company]
     ## DATE: [date]
     ## WHAT HAPPENED
-    ## COMPETITIVE IMPACT
+    ## IMPACT (CI PoV): [impact_level]
     ## WHY IT MATTERS
     ## TELL ME MORE
     ## OUTLOOK
-    ## SOURCE INFORMATION
+    ## SOURCES
   expected_output: >
     The final, formatted Markdown report.
   agent: report_validator

@@ -180,12 +180,6 @@ def run_system():
                 "- [Takeaway 2]\n"
                 "- [Takeaway 3]\n\n"
                 "Find the report attached bellow"
-            ),
-            'company_goals': (
-                "1. Protect market share in core Immunology and Oncology portfolios. "
-                "2. Monitor competitor R&D breakthroughs. "
-                "3. Identify M&A activity or strategic pivots. "
-                "4. Assess risks to patent estates."
             )
         }
 
