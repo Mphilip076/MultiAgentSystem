@@ -17,6 +17,7 @@ import docx
 import re
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from datetime import datetime
 
 # Initialize the tools
 search_tool = SerperDevTool()
@@ -50,17 +51,19 @@ def get_gmail_service():
     return build('gmail', 'v1', credentials=creds)
 
 @tool("Email Sender Tool")
-def send_email_tool(subject: str, email_body: str, report_content: str) -> str:
+def send_email_tool(subject: str, email_body: str) -> str:
     """Use this tool to send the finalized strategic report to the executive team 
     via the Gmail API. 
     Args:
         subject: The exact subject line for the email.
         email_body: The summarized email content (title, company, date, summary, and 3 bullet points).
-        report_content: The full formatted text content of the report to attach as a Word document.
     """
     recipient_email = "mateoviteri13579@gmail.com"
     
     try:
+        with open('final_report.md', 'r', encoding='utf-8') as f:
+            report_content = f.read()
+            
         service = get_gmail_service()
         message = EmailMessage()
         
@@ -144,7 +147,7 @@ def send_email_tool(subject: str, email_body: str, report_content: str) -> str:
             doc_io.read(), 
             maintype='application', 
             subtype='vnd.openxmlformats-officedocument.wordprocessingml.document', 
-            filename='report.docx'
+            filename=f'{datetime.now().strftime("%d%m%y")}-Alert-{subject}.docx'
         )
 
         # Gmail API requires the message to be base64url encoded
@@ -154,6 +157,12 @@ def send_email_tool(subject: str, email_body: str, report_content: str) -> str:
         # Execute the send command
         send_message = (service.users().messages().send(userId="me", body=create_message).execute())
         
+        # Clean up the intermediate file
+        try:
+            os.remove('final_report.md')
+        except OSError:
+            print("Warning: Failed to remove final_report.md")
+            
         return f"Email successfully sent to {recipient_email}! Message ID: {send_message['id']}"
     
     except Exception as e:
@@ -166,15 +175,24 @@ def url_check_tool(url: str) -> str:
         url: The full URL string to check.
     """
     try:
-        response = requests.head(url, timeout=5, allow_redirects=True, headers={'User-Agent': 'Mozilla/5.0'})
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        }
+        response = requests.head(url, timeout=8, allow_redirects=True, headers=headers)
         if response.status_code >= 400:
             # Fallback to GET if HEAD fails
-            response = requests.get(url, timeout=5, stream=True, headers={'User-Agent': 'Mozilla/5.0'})
+            response = requests.get(url, timeout=8, stream=True, headers=headers)
             response.close()
             
-        if response.status_code >= 400:
-            return f"Invalid URL (Status {response.status_code}): {url}"
+        if response.status_code in [404, 410]:
+            return f"Invalid URL (Dead Link - Status {response.status_code}): {url}"
+        elif response.status_code >= 400:
+            return f"Valid URL (Site exists but blocked the bot - Status {response.status_code}): {url}"
+            
         return f"Valid URL: {url}"
+    except requests.exceptions.RequestException as e:
+        return f"Valid URL (Site exists but blocked the bot - Error: {type(e).__name__}): {url}"
     except Exception as e:
         return f"Failed to connect to URL. Error: {str(e)}"
 
@@ -205,7 +223,7 @@ class System():
             verbose=True,
             tools=[search_tool],
             max_iter=3,
-            llm=LLM(model="anthropic/claude-haiku-4-5-20251001", temperature=0.2, max_tokens=8192)
+            llm=LLM(model="anthropic/claude-haiku-4-5-20251001", temperature=0.2, max_tokens=4096)
         )
 
     @agent
@@ -215,7 +233,7 @@ class System():
             verbose=True,
             tools=[url_check_tool],
             max_iter=3,
-            llm=LLM(model="anthropic/claude-haiku-4-5-20251001", temperature=0.2, max_tokens=8192)
+            llm=LLM(model="anthropic/claude-haiku-4-5-20251001", temperature=0.2, max_tokens=4096)
         )
 
     @agent
@@ -223,7 +241,7 @@ class System():
         return Agent(
             config=self.agents_config['report_creator'], 
             verbose=True,
-            llm=LLM(model="anthropic/claude-sonnet-4-5-20250929", temperature=0.2, max_tokens=8192)
+            llm=LLM(model="anthropic/claude-sonnet-4-5-20250929", temperature=0.2, max_tokens=4096)
         )
 
     @agent
@@ -231,7 +249,7 @@ class System():
         return Agent(
             config=self.agents_config['report_validator'], 
             verbose=True,
-            llm=LLM(model="anthropic/claude-haiku-4-5-20251001", temperature=0.2, max_tokens=8192)
+            llm=LLM(model="anthropic/claude-haiku-4-5-20251001", temperature=0.2, max_tokens=4096)
         )
 
     @agent
@@ -241,7 +259,7 @@ class System():
             verbose=True,
             tools=[send_email_tool],
             max_iter=3,
-            llm=LLM(model="anthropic/claude-sonnet-4-5-20250929", temperature=0.2, max_tokens=8192)
+            llm=LLM(model="anthropic/claude-sonnet-4-5-20250929", temperature=0.2, max_tokens=4096)
         )
 
     # --- TASKS --- #
@@ -262,7 +280,10 @@ class System():
 
     @task
     def report_validation_task(self) -> Task:
-        return Task(config=self.tasks_config['report_validation_task'])
+        return Task(
+            config=self.tasks_config['report_validation_task'],
+            output_file='final_report.md'
+        )
 
     @task
     def send_report_task(self) -> Task:

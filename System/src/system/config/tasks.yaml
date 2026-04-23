@@ -2,8 +2,10 @@ research_task:
   description: >
     Research the following news event: {topic} - {news_item}. 
     Focus strictly on recent developments, market reactions, and related announcements to expand upon the provided article. Avoid relying on outdated historical data.
+    Limit your independent research to a maximum of 10 highly authoritative, complementary sources. Focus strictly on extracting extremely high-signal information 
+    rather than drowning the dossier in volume.
   expected_output: >
-    A detailed research dossier formatted as structured notes. It must include the company name, date, and a bibliography.
+    A research dossier formatted as structured notes. It must include the company name, date, and a bibliography.
     The original URL from `news_item` MUST be Source #1 in the bibliography. Use exact, unaltered URLs for all other sources.
   agent: researcher
 
@@ -17,11 +19,13 @@ data_validation_task:
 
 report_creation_task:
   description: >
-    Transform the validated dossier into a strategic report explicitly tailored for AbbVie. Extract the relevant insights to populate the provided JSON schema fields.
-    Synthesize the information. Keep sections punchy and executive-friendly.
-    Limit each text section to a maximum of 1-2 short paragraphs and/or 3-4 impactful bullet points.
+    Transform the validated dossier into an strategic report for AbbVie.
+    Extract the relevant insights to populate the provided JSON schema fields.
+    Keep the generated content highly concise and strictly to the point. 
+    Each section (What happened, Impact, Why it matters, Tell me more, and Outlook) must consist of 3-5 bullet points max. 
+    DO NOT generate long paragraphs. If your entire output takes more than 1 single page to read, you failed.
   expected_output: >
-    A concise, highly scannable strategic report strictly structured as a valid JSON object matching the provided Pydantic schema. Include the numbered source list.
+    A hyper-concise strategic report (JSON object).
   agent: report_creator
 
 report_validation_task:
@@ -37,18 +41,19 @@ report_validation_task:
     ## TELL ME MORE
     ## OUTLOOK
     ## SOURCES
+
+    Make sure each section (excecpt for SOURCES) is formatted as 3-5 concise bullet points.
   expected_output: >
     The final, formatted Markdown report.
   agent: report_validator
 
 send_report_task:
   description: >
-    Extract the "SUBJECT:" line from the finalized report to use as the email subject.
-    Populate the email body using this template: {template}.
-    Execute the Email Sender Tool to deliver the report payload. You MUST provide all three arguments exactly:
-    1. 'subject': The extracted subject string.
-    2. 'email_body': The populated template string.
-    3. 'report_content': The full, complete Markdown text of the finalized report.
+    You are the final delivery step. You must execute the Email Sender Tool.
+    You must provide TWO arguments to the tool exactly:
+    1. 'subject': Extract the Subject/Title from the report.
+    2. 'email_body': Populate this text template exactly: {template}
+    Do NOT attempt to pass the full markdown report as a parameter. The tool will automatically read the full report directly from disk.
   expected_output: >
     A confirmation string that the Email Sender Tool was successfully called.
   agent: send_report
