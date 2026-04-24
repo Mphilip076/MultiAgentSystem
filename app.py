@@ -179,7 +179,7 @@ def run_system():
                 "- [Takeaway 1]\n"
                 "- [Takeaway 2]\n"
                 "- [Takeaway 3]\n\n"
-                "Find the report attached bellow"
+                "Find the report attached below."
             )
         }
 
