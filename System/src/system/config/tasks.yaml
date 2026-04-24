@@ -31,20 +31,29 @@ report_creation_task:
 report_validation_task:
   description: >
     Format the structured JSON report data into a polished Markdown document.
-    You MUST use exactly these headers:
-    # TITLE: [title]
+    You MUST use exactly these headers and map the JSON fields as follows:
+    ## TITLE: [title]
     ## COMPANY: [company]
     ## DATE: [date]
-    ## WHAT HAPPENED
-    ## IMPACT (CI PoV): [impact_level]
-    ## WHY IT MATTERS
+    ## WHAT HAPPENED 
+    (from the 'what_happened' field)
+    ## IMPACT (CI PoV): [impact_level] 
+    (from the 'competitive_impact' field)
+    ## WHY IT MATTERS 
+    (from the 'why_it_matters' field)
     ## TELL ME MORE
+    (from the 'tell_me_more' field)
     ## OUTLOOK
+    (from the 'outlook' field)
     ## SOURCES
+    (from the 'source_information' field)
 
-    Make sure each section (excecpt for SOURCES) is formatted as 3-5 concise bullet points.
+    Make sure each section (except for SOURCES) is formatted as 3-5 concise bullet points.
+    CRITICAL: DO NOT add any extra content to the report. You must NOT append any metadata, 
+    footers, or dialogue such as "VALIDATION SUMMARY" or "APPROVED FOR CLIENT DISTRIBUTION". 
+    Output ONLY the raw Markdown document text and absolutely nothing else.
   expected_output: >
-    The final, formatted Markdown report.
+    The final, formatted Markdown report. No additional summaries or footers appended.
   agent: report_validator
 
 send_report_task:
