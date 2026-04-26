@@ -22,7 +22,7 @@ report_creation_task:
     Transform the validated dossier into an strategic report for AbbVie.
     Extract the relevant insights to populate the provided JSON schema fields.
     Keep the generated content highly concise and strictly to the point. 
-    Each section (What happened, Impact, Why it matters, Tell me more, and Outlook) must consist of 3-5 bullet points max. 
+    Each section (What happened, Competitive Impact, Why it matters, Tell me more, and Outlook) must consist of 3-5 bullet points max. 
     DO NOT generate long paragraphs. If your entire output takes more than 1 single page to read, you failed.
   expected_output: >
     A hyper-concise strategic report (JSON object).
@@ -37,8 +37,8 @@ report_validation_task:
     ## DATE: [date]
     ## WHAT HAPPENED 
     (from the 'what_happened' field)
-    ## IMPACT (CI PoV): [impact_level] 
-    (from the 'competitive_impact' field)
+    ## IMPACT (CI PoV): [impact_level]
+    (Insert the bullet points from the 'competitive_impact' field directly below this header)
     ## WHY IT MATTERS 
     (from the 'why_it_matters' field)
     ## TELL ME MORE
