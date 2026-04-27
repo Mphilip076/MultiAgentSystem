@@ -117,11 +117,10 @@ def run_system():
     
     links = {
         "1": ["Eli Lilly", "https://www.lilly.com/news/press-releases"],
-        "2": ["AbbVie", "https://news.abbvie.com/news/press-releases/"],
-        "3": ["Merck", "https://www.merck.com/media/news/"],
-        "4": ["Pfizer", "https://www.pfizer.com/news/press-releases/"],
-        "5": ["National Cancer Institute", f"https://www.cancer.gov/news-events"],
-        "6": ["FDA", "https://www.fda.gov/search?s=Ovarian+Cancer"],
+        "2": ["Merck", "https://www.merck.com/media/news/"],
+        "3": ["Pfizer", "https://www.pfizer.com/news/press-releases/"],
+        "4": ["National Cancer Institute", f"https://www.cancer.gov/news-events"],
+        "5": ["FDA", "https://www.fda.gov/search?s=Ovarian+Cancer"],
     }
 
     db = load_db()
