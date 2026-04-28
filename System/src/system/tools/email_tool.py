@@ -55,7 +55,7 @@ class EmailSenderTool(BaseTool):
     args_schema: Type[BaseModel] = EmailSenderToolInput
 
     def _run(self, subject: str, email_body: str) -> str:
-        recipient_email = "mateoviteri13579@gmail.com"
+        recipient_email = "matthewjoeyphilip@gmail.com"
         
         try:
             with open('final_report.md', 'r', encoding='utf-8') as f:

@@ -2,25 +2,21 @@ import os
 import sys
 import json
 import hashlib
-import requests
+from curl_cffi import requests as cffi_requests
 import datetime
 import concurrent.futures
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 import litellm
 
-# Load env variables
-load_dotenv()
-
 # Add System/src to path to import the Crew
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(current_dir, "System", "src"))
 
-try:
-    from system.crew import System
-except ImportError as e:
-    print(f"Error: Could not import 'System' from 'system.crew'. {e}")
-    sys.exit(1)
+from system.crew import System
+
+# Load env variables
+load_dotenv()
 
 # Scraper Configuration
 DB_FILE = "processed_news.json"
@@ -49,7 +45,7 @@ def get_hash(text):
 def scrape_url(company_name, url):
     """Fetches raw content from company news pages."""
     try:
-        r = requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+        r = cffi_requests.get(url, timeout=15, impersonate="chrome120")
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
         
@@ -136,6 +132,8 @@ def run_system():
             if not err:
                 scraped_results.append((name, data))
                 print(f"   Fetched: {name}")
+            else:
+                print(f"   Error fetching: {name} - {err}")
 
     # 2. Clean and Check for New Items
     print(f"\nFiltering for strategic news using AI...")
