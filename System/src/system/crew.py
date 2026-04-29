@@ -11,18 +11,6 @@ search_tool = SerperDevTool()
 url_check_tool = URLCheckerTool()
 send_email_tool = EmailSenderTool()
 
-class ReportTemplate(BaseModel):
-    title: str = Field(default="Untitled", description="The title of the report. Remove 'Research Dossier:' from the title.")
-    company: str = Field(default="Unknown", description="The name of the primary company involved (or source name if N/A).")
-    date: str = Field(default="Unknown Date", description="The date of the event or report.")
-    what_happened: str = Field(default="", description="A clear and concise summary of the core event or news.")
-    impact_level: str = Field(default="Medium", description="The assessed level of impact for AbbVie (e.g., 'High', 'Medium', or 'Low').")
-    competitive_impact: str = Field(default="", description="Detailed analysis of how this impacts AbbVie from a Competitive Intelligence (CI) Point of View.")
-    why_it_matters: str = Field(default="", description="Explanation of the strategic significance and alignment with company goals.")
-    tell_me_more: str = Field(default="", description="The actual verified facts and detailed background context extracted from the validated data.")
-    outlook: str = Field(default="", description="Actionable strategic recommendations, future outlook, and competitor activities to monitor.")
-    source_information: str = Field(default="", description="A numbered list of all sources and exact URLs used.")
-
 @CrewBase
 class System():
     """System crew"""
@@ -89,8 +77,7 @@ class System():
     @task
     def report_creation_task(self) -> Task:
         return Task(
-            config=self.tasks_config['report_creation_task'],
-            output_json=ReportTemplate 
+            config=self.tasks_config['report_creation_task']
         )
 
     @task

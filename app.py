@@ -170,6 +170,7 @@ def run_system():
             'template': (
                 "TITLE: [title]\n"
                 "COMPANY: [company name]\n"
+                "DRUG: [drug name]\n"
                 f"DATE: {now.strftime('%B %d, %Y')}\n\n"
                 "QUICK SUMMARY:\n"
                 "[A high-level summary of the clinical/strategic event]\n\n"

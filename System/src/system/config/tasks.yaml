@@ -21,11 +21,38 @@ report_creation_task:
   description: >
     Transform the validated dossier into an strategic report for AbbVie.
     Extract the relevant insights to populate the provided JSON schema fields.
+    
+    Ensure you accurately populate the fields based on these instructions:
+    - title: The title of the report. Remove 'Research Dossier:' from the title.
+    - company: The name of the primary company involved (or source name if N/A).
+    - drug: The specific drug, therapy, or product involved (or 'N/A' if not applicable).
+    - date: The date of the event or report.
+    - what_happened: A clear and concise summary of the core event or news.
+    - impact_level: The assessed level of impact for AbbVie (e.g., 'High', 'Medium', or 'Low').
+    - competitive_impact: Detailed analysis of how this impacts AbbVie from a Competitive Intelligence (CI) Point of View.
+    - why_it_matters: Explanation of the strategic significance and alignment with company goals.
+    - tell_me_more: The actual verified facts and detailed background context extracted from the validated data.
+    - outlook: Actionable strategic recommendations, future outlook, and competitor activities to monitor.
+    - source_information: A numbered list of all sources and exact URLs used.
+
     Keep the generated content highly concise and strictly to the point. 
     Each section (What happened, Competitive Impact, Why it matters, Tell me more, and Outlook) must consist of 3-5 bullet points max. 
     DO NOT generate long paragraphs. If your entire output takes more than 1 single page to read, you failed.
   expected_output: >
-    A hyper-concise strategic report (JSON object).
+    A hyper-concise strategic report as a raw JSON object matching this exact structure:
+    {
+      "title": "String",
+      "company": "String",
+      "drug": "String",
+      "date": "String",
+      "what_happened": "String",
+      "impact_level": "String",
+      "competitive_impact": "String",
+      "why_it_matters": "String",
+      "tell_me_more": "String",
+      "outlook": "String",
+      "source_information": "String"
+    }
   agent: report_creator
 
 report_validation_task:
@@ -34,6 +61,7 @@ report_validation_task:
     You MUST use exactly these headers and map the JSON fields as follows:
     ## TITLE: [title]
     ## COMPANY: [company]
+    ## DRUG: [drug]
     ## DATE: [date]
     ## WHAT HAPPENED 
     (from the 'what_happened' field)
